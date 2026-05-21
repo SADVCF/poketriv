@@ -11,9 +11,11 @@ services:
     dockerfilePath: ./Dockerfile
 
     envVars:
-      # APP_KEY se genera automáticamente (¡nunca hardcodear!)
+      # APP_KEY: debe estar en formato base64:XXXX
+      # Genera con: php artisan key:generate --show
+      # y pégalo manualmente en Render > Environment
       - key: APP_KEY
-        generateValue: true
+        sync: false
 
       - key: APP_ENV
         value: production
