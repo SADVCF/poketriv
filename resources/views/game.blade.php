@@ -1,370 +1,604 @@
 @extends('layouts.app')
-
 @section('title', 'PokéTrivia — Jugando')
 
 @push('styles')
 <style>
-    .pokemon-card-glow {
-        transition: box-shadow 0.4s ease, border-color 0.4s ease;
-    }
-    .silhouette {
-        filter: brightness(0) contrast(1);
-    }
-    .silhouette-reveal {
-        animation: reveal-glow 0.6s ease-out forwards;
-    }
-    .timer-ring {
-        transition: stroke-dashoffset 0.1s linear;
-        transform: rotate(-90deg);
-        transform-origin: 50% 50%;
-    }
-    .answer-correct {
-        background: rgba(34,197,94,0.15) !important;
-        border-color: rgba(34,197,94,0.6) !important;
-        color: #4ade80 !important;
-    }
-    .answer-wrong {
-        background: rgba(239,68,68,0.1) !important;
-        border-color: rgba(239,68,68,0.3) !important;
-        color: rgba(255,255,255,0.3) !important;
-    }
-    .answer-reveal {
-        background: rgba(34,197,94,0.08) !important;
-        border-color: rgba(34,197,94,0.4) !important;
-        color: rgba(74,222,128,0.7) !important;
-    }
-    .streak-badge {
-        animation: pop 0.3s ease-out;
-    }
+/* ── Game-specific styles ──────────────────────────────────────────── */
+
+/* silhouette */
+.poke-silhouette { filter: brightness(0) contrast(1.1); }
+.poke-reveal     { animation: reveal-pokemon .55s ease-out forwards; }
+
+/* answer button states */
+.opt-idle    { background:var(--surface-2); border-color:var(--border-mid); color:var(--text); }
+.opt-idle:hover:not(:disabled) {
+    border-left-color: var(--yellow) !important;
+    background: var(--surface-3);
+    transform: translateX(3px);
+}
+.opt-correct { background:rgba(46,213,115,.14)!important; border-color:rgba(46,213,115,.7)!important; color:#2ed573!important; }
+.opt-wrong   { background:rgba(255,71,87,.08)!important;  border-color:rgba(255,71,87,.25)!important;  color:rgba(255,255,255,.28)!important; }
+.opt-reveal  { background:rgba(46,213,115,.07)!important; border-color:rgba(46,213,115,.35)!important; color:rgba(46,213,115,.65)!important; }
+
+/* HP bar */
+.hp-bar-fill { transition: width .08s linear, background-color .5s ease; }
+.hp-blink    { animation: hp-blink .5s ease-in-out infinite; }
+
+/* corner markers */
+.corner { position:absolute; width:14px; height:14px; border-color:var(--yellow); border-style:solid; opacity:.5; }
+.corner-tl { top:0; left:0;  border-width:2px 0 0 2px; }
+.corner-tr { top:0; right:0; border-width:2px 2px 0 0; }
+.corner-bl { bottom:0; left:0;  border-width:0 0 2px 2px; }
+.corner-br { bottom:0; right:0; border-width:0 2px 2px 0; }
+
+/* points popup */
+.pts-popup {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-family:var(--font-display); font-weight:900; font-size:28px;
+    color:var(--yellow); text-shadow:0 0 20px rgba(255,203,5,.6);
+    pointer-events:none; white-space:nowrap;
+    animation:points-float .9s ease-out forwards;
+    z-index:10;
+}
+
+/* result screen */
+.stat-card {
+    background:var(--surface-2); border:1px solid var(--border-mid);
+    border-radius:12px; padding:20px 16px; text-align:center;
+}
+.stat-val {
+    font-family:var(--font-mono); font-weight:700; font-size:28px; line-height:1;
+}
+.stat-lbl {
+    font-family:var(--font-mono); font-size:9px; font-weight:700;
+    letter-spacing:.15em; color:var(--text-muted); margin-top:5px;
+    text-transform:uppercase;
+}
+
+/* score bump */
+.score-bump { animation:score-bump .45s ease-out; }
+
+/* question slide animation */
+.q-enter { animation:slide-right .3s ease-out; }
 </style>
 @endpush
 
 @section('content')
 <div
-    class="min-h-[calc(100vh-56px)] flex flex-col items-center justify-start px-4 py-6"
+    class="game-root"
     x-data="pokeGame({
         playerName: @js($playerName),
         difficulty: @js($difficulty),
         timePerQuestion: {{ $timePerQuestion }},
-        optionCount: {{ $optionCount }}
+        optionCount: {{ $optionCount }},
+        maxGen: {{ $maxGen ?? 2 }},
+        questionCount: {{ $questionCount ?? 10 }}
     })"
     x-init="init()"
 >
 
-    {{-- LOADING --}}
-    <div x-show="phase === 'loading'" class="flex-1 flex flex-col items-center justify-center gap-4 py-20">
-        <svg width="60" height="60" viewBox="0 0 100 100" class="pokeball-spin opacity-60">
-            <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="8"/>
-            <path d="M4 50 A46 46 0 0 1 96 50" fill="rgba(99,144,240,0.3)"/>
-            <line x1="4" y1="50" x2="96" y2="50" stroke="rgba(255,255,255,0.2)" stroke-width="5"/>
-            <circle cx="50" cy="50" r="12" fill="#0a0a1a" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>
-        </svg>
-        <p class="text-white/40 text-sm">Cargando Pokémon...</p>
+{{-- ── LOADING ────────────────────────────────────────────────────── --}}
+<div x-show="phase === 'loading'" class="state-center">
+    <svg width="52" height="52" viewBox="0 0 100 100" style="animation:spin 1s linear infinite;opacity:.5">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,203,5,.4)" stroke-width="7"/>
+        <path d="M6 50 A44 44 0 0 1 94 50" fill="rgba(255,203,5,.15)"/>
+        <line x1="6" y1="50" x2="94" y2="50" stroke="rgba(255,255,255,.2)" stroke-width="5"/>
+        <circle cx="50" cy="50" r="10" fill="#07080f" stroke="rgba(255,203,5,.4)" stroke-width="4"/>
+    </svg>
+    <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:.1em;">
+        CARGANDO POKÉMON...
+    </p>
+</div>
+
+{{-- ── ERROR ──────────────────────────────────────────────────────── --}}
+<div x-show="phase === 'error'" class="state-center">
+    <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
+    <p style="font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:6px;">Error de carga</p>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;" x-text="errorMsg"></p>
+    <div style="display:flex;gap:10px;">
+        <button @click="retryLoad()" class="btn-yellow">Reintentar</button>
+        <a href="/" class="btn-ghost">Inicio</a>
     </div>
+</div>
 
-    {{-- ERROR --}}
-    <div x-show="phase === 'error'" class="flex-1 flex flex-col items-center justify-center gap-3 py-20 text-center">
-        <div class="text-4xl">⚠️</div>
-        <p class="text-white/60 font-semibold">Error cargando las preguntas</p>
-        <p class="text-white/30 text-sm">Comprueba la consola del servidor</p>
-        <a href="/" class="mt-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition-colors text-sm font-semibold">Volver al inicio</a>
-    </div>
+{{-- ── JUEGO ──────────────────────────────────────────────────────── --}}
+<div x-show="phase !== 'loading' && phase !== 'finished' && phase !== 'error'"
+     class="game-layout q-enter" :key="currentIndex">
 
-    {{-- JUEGO --}}
-    <div x-show="phase !== 'loading' && phase !== 'finished'" class="w-full max-w-lg slide-up">
-
-        {{-- HUD top --}}
-        <div class="flex items-center gap-3 mb-5">
-            {{-- Progreso --}}
-            <div class="flex-1">
-                <div class="flex justify-between text-xs text-white/40 mb-1.5">
-                    <span>Pregunta <span class="text-white/70 font-semibold" x-text="currentIndex + 1"></span> de 10</span>
-                    <span x-show="streak >= 2" class="streak-badge text-amber-400 font-bold">
-                        🔥 ×<span x-text="streak"></span>
-                    </span>
-                </div>
-                <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div
-                        class="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full transition-all duration-500"
-                        :style="`width: ${progress}%`"
-                    ></div>
-                </div>
+    {{-- HUD ── progress + score --}}
+    <div class="hud">
+        <div class="hud-left">
+            <div class="hud-q-label">
+                PREGUNTA
+                <span class="hud-q-num" x-text="currentIndex + 1"></span>
+                <span style="color:var(--text-faint)"> / </span>
+                <span x-text="questions.length"></span>
             </div>
-
-            {{-- Score --}}
-            <div class="text-right flex-shrink-0">
-                <div class="text-[10px] text-white/30 uppercase tracking-widest">Puntos</div>
-                <div class="text-xl font-black tabular-nums" :class="scoreFlash ? 'score-flash' : ''" x-text="score.toLocaleString()"></div>
+            <div class="hud-bar-track">
+                <div class="hud-bar-fill" :style="`width:${progress}%`"></div>
             </div>
         </div>
-
-        {{-- Pokemon Card --}}
-        <div
-            class="pokemon-card-glow glass rounded-2xl p-6 mb-4 text-center relative overflow-hidden"
-            :style="cardStyle"
-        >
-            {{-- Timer circular --}}
-            <div class="absolute top-4 right-4">
-                <svg width="44" height="44" viewBox="0 0 44 44">
-                    <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>
-                    <circle
-                        cx="22" cy="22" r="18"
-                        fill="none"
-                        :stroke="timerColor"
-                        stroke-width="3"
-                        stroke-linecap="round"
-                        :stroke-dasharray="113"
-                        :stroke-dashoffset="timerDash"
-                        class="timer-ring"
-                        style="transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;"
-                    />
-                    <text x="22" y="27" text-anchor="middle" font-size="11" font-weight="700" :fill="timerColor" x-text="Math.ceil(timeLeft)"></text>
-                </svg>
+        <div class="hud-right">
+            {{-- Streak combo --}}
+            <div x-show="streak >= 2" class="combo-badge" :class="streak >= 5 ? 'combo-hot' : ''">
+                <span x-show="streak >= 5" style="font-size:14px;">🔥</span>
+                <span style="font-family:var(--font-mono);font-weight:700;">×<span x-text="streak"></span></span>
+                <span style="font-size:9px;letter-spacing:.1em;opacity:.7;">COMBO</span>
             </div>
+            {{-- Score --}}
+            <div class="score-block">
+                <div class="score-label">SCORE</div>
+                <div class="score-value" :class="scoreFlash ? 'score-bump' : ''" x-text="score.toLocaleString()"></div>
+            </div>
+        </div>
+    </div>
 
-            {{-- Tipo badges --}}
-            <div class="flex justify-center gap-1.5 mb-4 h-5" x-show="revealed || difficulty !== 'hard'">
-                <template x-for="type in (current ? current.types : [])" :key="type">
-                    <span class="type-badge" :class="`type-${type}`" x-text="type"></span>
+    {{-- Battle card --}}
+    <div class="battle-card" :style="typeAccentStyle">
+        {{-- Corner HUD markers --}}
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        {{-- Points popup --}}
+        <div x-show="pointsPopup.show" class="pts-popup">
+            +<span x-text="pointsPopup.amount"></span>
+            <span x-show="pointsPopup.streakBonus > 0" style="font-size:16px;color:#ffda45;"> (+<span x-text="pointsPopup.streakBonus"></span>🔥)</span>
+        </div>
+
+        {{-- Card header: gen badge + type badges --}}
+        <div class="card-header">
+            <span class="gen-pill" x-show="current" x-text="'GEN ' + (current?.generation ?? '?')"></span>
+            <div class="type-row" x-show="revealed || difficulty !== 'hard'">
+                <template x-for="t in (current ? current.types : [])" :key="t">
+                    <span class="type-badge" :class="`type-${t}`" x-text="t"></span>
                 </template>
             </div>
-            <div class="h-5 mb-4" x-show="!revealed && difficulty === 'hard'"></div>
-
-            {{-- Imagen Pokémon --}}
-            <div class="relative inline-block">
-                <img
-                    x-show="current"
-                    :src="current ? current.artwork_url : ''"
-                    :alt="revealed ? current.answer : '???'"
-                    :class="[
-                        'w-44 h-44 object-contain mx-auto',
-                        difficulty === 'hard' && !revealed ? 'silhouette' : '',
-                        difficulty === 'hard' && revealed ? 'silhouette-reveal' : '',
-                    ]"
-                    style="image-rendering: auto;"
-                    @@error="$el.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'"
-                >
-            </div>
-
-            {{-- Nombre o interrogantes --}}
-            <div class="mt-3 h-7 flex items-center justify-center">
-                <span
-                    x-show="revealed"
-                    class="text-lg font-black tracking-wide slide-up"
-                    x-text="current ? current.answer : ''"
-                ></span>
-                <span x-show="!revealed" class="text-white/20 text-lg font-black tracking-[0.3em]">???</span>
-            </div>
+            <div x-show="!revealed && difficulty === 'hard'" style="height:22px;"></div>
         </div>
 
-        {{-- Opciones --}}
-        <div
-            class="grid gap-2"
-            :class="optionCount === 6 ? 'grid-cols-2' : 'grid-cols-2'"
-        >
-            <template x-for="(option, idx) in (current ? current.options : [])" :key="idx">
-                <button
-                    @click="selectAnswer(option)"
-                    :disabled="selectedAnswer !== null"
-                    :class="getOptionClass(option)"
-                    class="answer-btn glass border rounded-xl px-3 py-3 text-sm font-semibold text-left transition-all duration-200 disabled:cursor-default"
-                >
-                    <span class="text-white/20 text-xs mr-2 font-mono" x-text="String.fromCharCode(65 + idx)"></span>
-                    <span x-text="option"></span>
-                </button>
-            </template>
+        {{-- Pokemon image --}}
+        <div class="poke-stage">
+            <img
+                x-show="current"
+                :src="current ? current.artwork_url : ''"
+                :alt="revealed ? (current ? current.answer : '') : '???'"
+                :class="['poke-img', difficulty === 'hard' && !revealed ? 'poke-silhouette' : '', difficulty === 'hard' && revealed ? 'poke-reveal' : '']"
+                @@error="$el.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'"
+            >
+        </div>
+
+        {{-- Pokemon name --}}
+        <div class="poke-name-row">
+            <span x-show="revealed" class="poke-name" x-text="current ? current.answer : ''"></span>
+            <span x-show="!revealed" class="poke-unknown">? ? ?</span>
+        </div>
+
+        {{-- HP bar timer ── the signature element --}}
+        <div class="hp-bar-section">
+            <span class="hp-label">HP</span>
+            <div class="hp-track">
+                <div
+                    class="hp-bar-fill"
+                    :class="timeLeft <= 3 ? 'hp-blink' : ''"
+                    :style="`width:${Math.max(0, timeLeft/timePerQuestion*100)}%; background:${hpBarColor};`"
+                ></div>
+            </div>
+            <span class="hp-num" :style="`color:${hpBarColor}`" x-text="Math.ceil(timeLeft)"></span>
         </div>
     </div>
 
-    {{-- PANTALLA FINAL --}}
-    <div x-show="phase === 'finished'" class="w-full max-w-lg slide-up py-6">
-
-        {{-- Título resultado --}}
-        <div class="text-center mb-8">
-            <div class="text-5xl mb-3" x-text="resultEmoji"></div>
-            <h2 class="text-3xl font-black mb-1" x-text="resultTitle"></h2>
-            <p class="text-white/40 text-sm" x-text="playerName"></p>
-        </div>
-
-        {{-- Stats --}}
-        <div class="grid grid-cols-2 gap-3 mb-5">
-            <div class="glass rounded-2xl p-5 text-center">
-                <div class="text-3xl font-black bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent" x-text="score.toLocaleString()"></div>
-                <div class="text-xs text-white/40 mt-1 uppercase tracking-widest">Puntuación</div>
-            </div>
-            <div class="glass rounded-2xl p-5 text-center">
-                <div class="text-3xl font-black text-emerald-400">
-                    <span x-text="correctCount"></span><span class="text-white/20">/10</span>
-                </div>
-                <div class="text-xs text-white/40 mt-1 uppercase tracking-widest">Aciertos</div>
-            </div>
-            <div class="glass rounded-2xl p-5 text-center">
-                <div class="text-3xl font-black text-amber-400" x-text="formatTime(totalTime)"></div>
-                <div class="text-xs text-white/40 mt-1 uppercase tracking-widest">Tiempo</div>
-            </div>
-            <div class="glass rounded-2xl p-5 text-center">
-                <div class="text-3xl font-black text-purple-400">
-                    #<span x-text="rank ?? '—'"></span>
-                </div>
-                <div class="text-xs text-white/40 mt-1 uppercase tracking-widest">Posición</div>
-            </div>
-        </div>
-
-        {{-- Difficulty badge --}}
-        <div class="text-center mb-6">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/40">
-                <span x-text="difficulty === 'easy' ? '😊 Fácil' : difficulty === 'medium' ? '🔥 Medio' : '💀 Difícil'"></span>
-            </span>
-        </div>
-
-        {{-- Acciones --}}
-        <div class="space-y-2">
+    {{-- Answer options --}}
+    <div class="options-grid" :class="optionCount > 4 ? 'options-grid--6' : ''">
+        <template x-for="(option, idx) in (current ? current.options : [])" :key="idx">
             <button
-                @click="restartGame()"
-                class="w-full py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-indigo-600 to-indigo-500
-                       hover:from-indigo-500 hover:to-indigo-400 transition-all
-                       shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]"
+                @click="selectAnswer(option)"
+                :disabled="selectedAnswer !== null"
+                :class="['opt-btn', getOptionClass(option)]"
             >
-                Jugar de nuevo
+                <span class="opt-key" x-text="'ABCDEF'[idx]"></span>
+                <span class="opt-text" x-text="option"></span>
             </button>
-            <a
-                href="/ranking"
-                class="block w-full py-3.5 rounded-xl font-bold text-sm text-center glass border border-white/10
-                       hover:border-white/20 hover:bg-white/5 transition-all text-white/70 hover:text-white"
-            >
-                Ver ranking completo →
-            </a>
-        </div>
+        </template>
     </div>
 
 </div>
 
+{{-- ── RESULTADO ──────────────────────────────────────────────────── --}}
+<div x-show="phase === 'finished'" class="result-root" style="animation:fade-up .4s ease-out">
+
+    <div class="result-hero">
+        <div class="result-emoji" x-text="resultEmoji"></div>
+        <h2 class="result-title" x-text="resultTitle"></h2>
+        <p class="result-player" x-text="playerName"></p>
+    </div>
+
+    <div class="result-stats">
+        <div class="stat-card">
+            <div class="stat-val" style="color:var(--yellow)" x-text="score.toLocaleString()"></div>
+            <div class="stat-lbl">Puntuación</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" style="color:var(--green)">
+                <span x-text="correctCount"></span><span style="color:var(--text-faint);font-size:18px;">/</span><span x-text="questions.length" style="font-size:18px;"></span>
+            </div>
+            <div class="stat-lbl">Aciertos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" style="color:#a78bfa" x-text="formatTime(totalTime)"></div>
+            <div class="stat-lbl">Tiempo</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" style="color:var(--yellow)">
+                <span style="font-size:18px;opacity:.4">#</span><span x-text="rank ?? '—'"></span>
+            </div>
+            <div class="stat-lbl">Posición</div>
+        </div>
+    </div>
+
+    <div class="result-diff-row">
+        <span class="chip" x-text="{ easy:'😊 Fácil', medium:'🔥 Medio', hard:'💀 Difícil' }[difficulty]"></span>
+        <span x-show="maxStreak >= 3" class="chip chip--yellow">🔥 Racha máx. <span x-text="maxStreak"></span></span>
+    </div>
+
+    <div class="result-actions">
+        <button @click="restartGame()" class="btn-yellow">Jugar de nuevo</button>
+        <a href="{{ route('ranking') }}" class="btn-ghost">Ver ranking →</a>
+    </div>
+</div>
+
+</div>{{-- /game-root --}}
+
+<style>
+.game-root {
+    min-height: calc(100vh - 54px);
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: flex-start;
+    padding: 20px 16px 32px; gap: 0;
+}
+.state-center {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 14px; padding: 60px 0;
+}
+
+/* ── HUD ─────────────────────────────────────────────────────────── */
+.hud {
+    width: 100%; max-width: 520px;
+    display: flex; align-items: flex-end; gap: 14px;
+    margin-bottom: 14px;
+}
+.hud-left { flex: 1; }
+.hud-q-label {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    letter-spacing: .1em; color: var(--text-muted);
+    margin-bottom: 7px;
+}
+.hud-q-num {
+    font-size: 13px; font-weight: 700; color: var(--text);
+}
+.hud-bar-track {
+    height: 4px; background: rgba(255,255,255,.06);
+    border-radius: 2px; overflow: hidden;
+}
+.hud-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--yellow) 0%, #ffda45 100%);
+    border-radius: 2px;
+    transition: width .4s ease;
+    box-shadow: 0 0 6px rgba(255,203,5,.4);
+}
+.hud-right {
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+.combo-badge {
+    display: flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 6px;
+    background: rgba(255,203,5,.1); border: 1px solid rgba(255,203,5,.3);
+    color: var(--yellow);
+    font-family: var(--font-display); font-size: 14px; font-weight: 800;
+    letter-spacing: .03em;
+}
+.combo-hot { animation: hp-blink .6s ease-in-out infinite alternate; }
+.score-block { text-align: right; }
+.score-label {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+    letter-spacing: .15em; color: var(--text-faint); margin-bottom: 1px;
+}
+.score-value {
+    font-family: var(--font-mono); font-size: 22px; font-weight: 700;
+    color: var(--text); letter-spacing: -.01em;
+}
+
+/* ── Battle card ─────────────────────────────────────────────────── */
+.battle-card {
+    width: 100%; max-width: 520px;
+    background: var(--surface);
+    border: 1px solid var(--border-mid);
+    border-radius: 14px;
+    position: relative; overflow: hidden;
+    margin-bottom: 12px;
+    transition: border-color .4s ease, box-shadow .4s ease;
+}
+.card-header {
+    padding: 14px 16px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 36px;
+}
+.gen-pill {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+    letter-spacing: .14em; color: var(--text-faint);
+    background: rgba(255,255,255,.05); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 3px;
+}
+.type-row { display: flex; gap: 5px; }
+
+.poke-stage {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 16px 8px; min-height: 200px;
+}
+.poke-img {
+    width: clamp(160px, 35vw, 220px);
+    height: clamp(160px, 35vw, 220px);
+    object-fit: contain;
+    filter: drop-shadow(0 4px 24px rgba(0,0,0,.5));
+    transition: filter .55s ease;
+}
+.poke-name-row {
+    text-align: center; min-height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 16px 10px;
+}
+.poke-name {
+    font-family: var(--font-display); font-size: 26px; font-weight: 800;
+    letter-spacing: .04em; color: var(--text);
+    animation: fade-up .3s ease-out;
+}
+.poke-unknown {
+    font-family: var(--font-mono); font-size: 20px; font-weight: 700;
+    letter-spacing: .4em; color: var(--text-faint);
+}
+
+/* HP bar */
+.hp-bar-section {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px 14px;
+    border-top: 1px solid var(--border);
+}
+.hp-label {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+    letter-spacing: .15em; color: var(--text-muted); min-width: 18px;
+}
+.hp-track {
+    flex: 1; height: 7px;
+    background: rgba(255,255,255,.07);
+    border-radius: 4px; overflow: hidden;
+}
+.hp-bar-fill { height: 100%; border-radius: 4px; }
+.hp-num {
+    font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+    min-width: 22px; text-align: right;
+    transition: color .5s ease;
+}
+
+/* ── Options ─────────────────────────────────────────────────────── */
+.options-grid {
+    width: 100%; max-width: 520px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.options-grid--6 { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 480px) {
+    .options-grid--6 { grid-template-columns: 1fr 1fr; }
+}
+
+.opt-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 14px; border-radius: 9px;
+    border: 2px solid; border-left-width: 3px;
+    cursor: pointer; transition: all .12s ease;
+    text-align: left;
+}
+.opt-btn:disabled { cursor: default; }
+.opt-key {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    color: var(--yellow); min-width: 16px; flex-shrink: 0;
+}
+.opt-text {
+    font-family: var(--font-ui); font-size: 13px; font-weight: 600;
+    line-height: 1.3;
+}
+
+/* ── Result screen ───────────────────────────────────────────────── */
+.result-root {
+    width: 100%; max-width: 520px;
+    display: flex; flex-direction: column; gap: 16px;
+    padding-top: 16px;
+}
+.result-hero { text-align: center; margin-bottom: 4px; }
+.result-emoji { font-size: 52px; line-height: 1; margin-bottom: 10px; }
+.result-title {
+    font-family: var(--font-display); font-size: 36px; font-weight: 900;
+    letter-spacing: .03em; color: var(--text); margin-bottom: 4px;
+}
+.result-player {
+    font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);
+    letter-spacing: .1em;
+}
+.result-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.result-diff-row {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+}
+.result-actions {
+    display: flex; flex-direction: column; gap: 8px;
+}
+.btn-yellow {
+    width: 100%; padding: 14px;
+    background: var(--yellow); color: #06070d;
+    border: none; border-radius: 8px;
+    font-family: var(--font-display); font-size: 20px; font-weight: 900;
+    letter-spacing: .08em; cursor: pointer;
+    box-shadow: 0 2px 0 rgba(0,0,0,.4), 0 4px 20px rgba(255,203,5,.3);
+    transition: all .12s;
+    text-decoration: none; text-align: center; display: block;
+}
+.btn-yellow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 rgba(0,0,0,.4), 0 8px 28px rgba(255,203,5,.4);
+}
+.btn-ghost {
+    display: block; width: 100%; padding: 13px;
+    background: var(--surface-2); border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    font-family: var(--font-ui); font-size: 14px; font-weight: 600;
+    color: var(--text-muted); text-align: center; text-decoration: none;
+    transition: all .12s; cursor: pointer;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border-hi); background: var(--surface-3); }
+</style>
+
 <script>
 const TYPE_COLORS = {
-    fire:     { color: '#FF9C54', glow: 'rgba(255,156,84,0.25)' },
-    water:    { color: '#6390F0', glow: 'rgba(99,144,240,0.25)' },
-    grass:    { color: '#7AC74C', glow: 'rgba(122,199,76,0.25)' },
-    electric: { color: '#F7D02C', glow: 'rgba(247,208,44,0.25)' },
-    psychic:  { color: '#F95587', glow: 'rgba(249,85,135,0.25)' },
-    ice:      { color: '#96D9D6', glow: 'rgba(150,217,214,0.25)' },
-    dragon:   { color: '#6F35FC', glow: 'rgba(111,53,252,0.25)' },
-    dark:     { color: '#9e8878', glow: 'rgba(112,87,70,0.25)' },
-    fairy:    { color: '#D685AD', glow: 'rgba(214,133,173,0.25)' },
-    normal:   { color: '#A8A77A', glow: 'rgba(168,167,122,0.2)' },
-    fighting: { color: '#C22E28', glow: 'rgba(194,46,40,0.25)' },
-    flying:   { color: '#A98FF3', glow: 'rgba(169,143,243,0.25)' },
-    poison:   { color: '#A33EA1', glow: 'rgba(163,62,161,0.25)' },
-    ground:   { color: '#E2BF65', glow: 'rgba(226,191,101,0.25)' },
-    rock:     { color: '#B6A136', glow: 'rgba(182,161,54,0.25)' },
-    bug:      { color: '#A6B91A', glow: 'rgba(166,185,26,0.25)' },
-    ghost:    { color: '#735797', glow: 'rgba(115,87,151,0.25)' },
-    steel:    { color: '#B7B7CE', glow: 'rgba(183,183,206,0.2)' },
+    fire:     { color:'#FF9C54', glow:'rgba(255,156,84,0.22)' },
+    water:    { color:'#6390F0', glow:'rgba(99,144,240,0.22)' },
+    grass:    { color:'#7AC74C', glow:'rgba(122,199,76,0.22)' },
+    electric: { color:'#F7D02C', glow:'rgba(247,208,44,0.22)' },
+    psychic:  { color:'#F95587', glow:'rgba(249,85,135,0.22)' },
+    ice:      { color:'#96D9D6', glow:'rgba(150,217,214,0.22)' },
+    dragon:   { color:'#6F35FC', glow:'rgba(111,53,252,0.22)' },
+    dark:     { color:'#9e8878', glow:'rgba(112,87,70,0.22)' },
+    fairy:    { color:'#D685AD', glow:'rgba(214,133,173,0.22)' },
+    normal:   { color:'#A8A77A', glow:'rgba(168,167,122,0.15)' },
+    fighting: { color:'#C22E28', glow:'rgba(194,46,40,0.22)' },
+    flying:   { color:'#A98FF3', glow:'rgba(169,143,243,0.22)' },
+    poison:   { color:'#A33EA1', glow:'rgba(163,62,161,0.22)' },
+    ground:   { color:'#E2BF65', glow:'rgba(226,191,101,0.22)' },
+    rock:     { color:'#B6A136', glow:'rgba(182,161,54,0.22)' },
+    bug:      { color:'#A6B91A', glow:'rgba(166,185,26,0.22)' },
+    ghost:    { color:'#735797', glow:'rgba(115,87,151,0.22)' },
+    steel:    { color:'#B7B7CE', glow:'rgba(183,183,206,0.15)' },
+    stellar:  { color:'#4FDBD6', glow:'rgba(79,219,214,0.22)' },
 };
 
-function pokeGame({ playerName, difficulty, timePerQuestion, optionCount }) {
+const AUDIO_CTX = typeof AudioContext !== 'undefined' ? new (window.AudioContext || window.webkitAudioContext)() : null;
+function playSound(type) {
+    if (!AUDIO_CTX) return;
+    try {
+        const now = AUDIO_CTX.currentTime;
+        if (type === 'correct') {
+            [523,659,784].forEach((f,i)=>{
+                const o=AUDIO_CTX.createOscillator(), g=AUDIO_CTX.createGain();
+                o.connect(g); g.connect(AUDIO_CTX.destination);
+                o.type='sine'; o.frequency.setValueAtTime(f, now+i*.1);
+                g.gain.setValueAtTime(.13, now+i*.1);
+                g.gain.exponentialRampToValueAtTime(.001, now+i*.1+.3);
+                o.start(now+i*.1); o.stop(now+i*.1+.3);
+            });
+        } else if (type === 'wrong') {
+            const o=AUDIO_CTX.createOscillator(), g=AUDIO_CTX.createGain();
+            o.connect(g); g.connect(AUDIO_CTX.destination);
+            o.type='sawtooth'; o.frequency.setValueAtTime(200,now); o.frequency.setValueAtTime(150,now+.15);
+            g.gain.setValueAtTime(.09,now); g.gain.exponentialRampToValueAtTime(.001,now+.3);
+            o.start(now); o.stop(now+.3);
+        } else if (type === 'tick') {
+            const o=AUDIO_CTX.createOscillator(), g=AUDIO_CTX.createGain();
+            o.connect(g); g.connect(AUDIO_CTX.destination);
+            o.frequency.setValueAtTime(800,now); g.gain.setValueAtTime(.04,now);
+            g.gain.exponentialRampToValueAtTime(.001,now+.05);
+            o.start(now); o.stop(now+.05);
+        } else if (type === 'finish') {
+            [523,659,784,1047].forEach((f,i)=>{
+                const o=AUDIO_CTX.createOscillator(), g=AUDIO_CTX.createGain();
+                o.connect(g); g.connect(AUDIO_CTX.destination);
+                o.type='sine'; o.frequency.setValueAtTime(f, now+i*.15);
+                g.gain.setValueAtTime(.11, now+i*.15);
+                g.gain.exponentialRampToValueAtTime(.001, now+i*.15+.3);
+                o.start(now+i*.15); o.stop(now+i*.15+.3);
+            });
+        } else if (type === 'timeout' || type === 'wrong') {
+            const o=AUDIO_CTX.createOscillator(), g=AUDIO_CTX.createGain();
+            o.connect(g); g.connect(AUDIO_CTX.destination);
+            o.type='square'; o.frequency.setValueAtTime(250,now); o.frequency.setValueAtTime(180,now+.2);
+            g.gain.setValueAtTime(.07,now); g.gain.exponentialRampToValueAtTime(.001,now+.35);
+            o.start(now); o.stop(now+.35);
+        }
+    } catch(e) {}
+}
+
+function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen, questionCount }) {
     return {
-        playerName,
-        difficulty,
-        timePerQuestion,
-        optionCount,
+        playerName, difficulty, timePerQuestion, optionCount, maxGen, questionCount,
 
         phase: 'loading',
-        questions: [],
-        currentIndex: 0,
+        questions: [], currentIndex: 0,
         selectedAnswer: null,
-        score: 0,
-        streak: 0,
-        correctCount: 0,
-        revealed: false,
-        scoreFlash: false,
-        rank: null,
+        score: 0, streak: 0, maxStreak: 0, correctCount: 0,
+        revealed: false, scoreFlash: false, rank: null,
+        gameToken: '', errorMsg: '',
+        timeLeft: timePerQuestion, timerInterval: null, timerStart: 0,
+        gameStartTime: null, totalTime: 0,
+        pointsPopup: { show: false, amount: 0, streakBonus: 0 },
 
-        timeLeft: timePerQuestion,
-        timerInterval: null,
-
-        gameStartTime: null,
-        questionStartTime: null,
-        totalTime: 0,
-
-        get current() {
-            return this.questions[this.currentIndex] ?? null;
-        },
-        get progress() {
-            return ((this.currentIndex) / 10) * 100;
-        },
-        get cardStyle() {
+        get current()     { return this.questions[this.currentIndex] ?? null; },
+        get progress()    { return this.questions.length > 0 ? (this.currentIndex / this.questions.length) * 100 : 0; },
+        get typeAccentStyle() {
             if (!this.current) return '';
-            const type = this.current.types[0];
-            const c = TYPE_COLORS[type] ?? TYPE_COLORS.normal;
-            return `box-shadow: 0 0 40px ${c.glow}, inset 0 0 40px ${c.glow}; border-color: ${c.color}30;`;
+            const t = this.current.types[0];
+            const c = TYPE_COLORS[t] ?? TYPE_COLORS.normal;
+            return `border-color:${c.color}40; box-shadow:0 0 32px ${c.glow}, 0 0 0 1px ${c.color}18 inset;`;
         },
-        get timerColor() {
-            const pct = this.timeLeft / this.timePerQuestion;
-            if (pct > 0.5) return '#6390F0';
-            if (pct > 0.25) return '#F7D02C';
-            return '#F95587';
-        },
-        get timerDash() {
-            const circumference = 113;
-            const pct = Math.max(0, this.timeLeft / this.timePerQuestion);
-            return circumference * (1 - pct);
+        get hpBarColor() {
+            const p = this.timeLeft / this.timePerQuestion;
+            if (p > .5) return '#2ed573';
+            if (p > .25) return '#ffcb05';
+            return '#ff4757';
         },
         get resultEmoji() {
-            const pct = this.correctCount / 10;
-            if (pct >= 0.9) return '🏆';
-            if (pct >= 0.7) return '⭐';
-            if (pct >= 0.5) return '👍';
-            return '💀';
+            const p = this.questions.length > 0 ? this.correctCount / this.questions.length : 0;
+            return p >= .9 ? '🏆' : p >= .7 ? '⭐' : p >= .5 ? '👍' : '💀';
         },
         get resultTitle() {
-            const pct = this.correctCount / 10;
-            if (pct >= 0.9) return '¡Maestro Pokémon!';
-            if (pct >= 0.7) return '¡Muy bien!';
-            if (pct >= 0.5) return 'Nada mal';
-            return 'Necesitas entrenar más';
+            const p = this.questions.length > 0 ? this.correctCount / this.questions.length : 0;
+            return p >= .9 ? '¡Maestro Pokémon!' : p >= .7 ? '¡Muy bien!' : p >= .5 ? 'Nada mal' : 'Necesitas entrenar más';
         },
 
-        async init() {
-            await this.loadQuestions();
-        },
+        async init() { await this.loadQuestions(); },
 
         async loadQuestions() {
-            this.phase = 'loading';
+            this.phase = 'loading'; this.errorMsg = '';
             try {
                 const res = await fetch('/api/game/questions', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    },
-                    body: JSON.stringify({ difficulty }),
+                    headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: JSON.stringify({ difficulty: this.difficulty, max_generation: this.maxGen, question_count: this.questionCount }),
                 });
                 const data = await res.json();
-                if (!Array.isArray(data) || data.length === 0) {
-                    this.phase = 'error';
-                    return;
-                }
-                this.questions = data;
+                const qs = data.questions ?? (Array.isArray(data) ? data : null);
+                if (!qs || qs.length === 0) { this.errorMsg = data.error || 'Sin preguntas'; this.phase = 'error'; return; }
+                this.questions = qs;
+                this.gameToken = data.token ?? '';
                 this.gameStartTime = Date.now();
                 this.phase = 'playing';
                 this.startTimer();
-            } catch (e) {
-                console.error(e);
-                this.phase = 'error';
-            }
+            } catch(e) { this.errorMsg = 'Error de conexión'; this.phase = 'error'; }
         },
+
+        async retryLoad() { await this.loadQuestions(); },
 
         startTimer() {
             clearInterval(this.timerInterval);
+            this.timerStart = Date.now();
             this.timeLeft = this.timePerQuestion;
-            this.questionStartTime = Date.now();
             this.timerInterval = setInterval(() => {
-                this.timeLeft = Math.max(0, this.timeLeft - 0.1);
-                if (this.timeLeft <= 0) {
-                    clearInterval(this.timerInterval);
-                    this.handleTimeout();
-                }
-            }, 100);
+                const elapsed = (Date.now() - this.timerStart) / 1000;
+                this.timeLeft = Math.max(0, this.timePerQuestion - elapsed);
+                if (this.timeLeft <= 3 && this.timeLeft > 0 && Math.ceil(this.timeLeft) !== Math.ceil(this.timeLeft + .1)) playSound('tick');
+                if (this.timeLeft <= 0) { clearInterval(this.timerInterval); this.handleTimeout(); }
+            }, 50);
         },
 
         selectAnswer(option) {
@@ -372,44 +606,36 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount }) {
             clearInterval(this.timerInterval);
             this.selectedAnswer = option;
             this.revealed = true;
-
-            const isCorrect = option === this.current.answer;
-
-            if (isCorrect) {
+            const ok = option === this.current.answer;
+            if (ok) {
                 this.streak++;
-                const timeBonus = Math.floor(this.timeLeft * 10);
-                const streakBonus = Math.max(0, this.streak - 1) * 25;
-                const gained = 100 + timeBonus + streakBonus;
-                this.score += gained;
-                this.correctCount++;
+                if (this.streak > this.maxStreak) this.maxStreak = this.streak;
+                const tb = Math.floor(this.timeLeft * 10), sb = Math.max(0, this.streak - 1) * 25;
+                const gained = 100 + tb + sb;
+                this.score += gained; this.correctCount++;
                 this.phase = 'correct';
                 this.triggerScoreFlash();
+                this.pointsPopup = { show: true, amount: gained, streakBonus: sb };
+                setTimeout(() => { this.pointsPopup.show = false; }, 950);
+                playSound('correct');
             } else {
-                this.streak = 0;
-                this.phase = 'wrong';
+                this.streak = 0; this.phase = 'wrong';
+                playSound('wrong');
             }
-
             setTimeout(() => this.nextQuestion(), 1600);
         },
 
         handleTimeout() {
             if (this.selectedAnswer !== null) return;
-            this.selectedAnswer = '__timeout__';
-            this.streak = 0;
-            this.revealed = true;
-            this.phase = 'wrong';
+            this.selectedAnswer = '__timeout__'; this.streak = 0;
+            this.revealed = true; this.phase = 'wrong';
+            playSound('timeout');
             setTimeout(() => this.nextQuestion(), 1600);
         },
 
         nextQuestion() {
-            if (this.currentIndex >= this.questions.length - 1) {
-                this.finishGame();
-                return;
-            }
-            this.currentIndex++;
-            this.selectedAnswer = null;
-            this.revealed = false;
-            this.phase = 'playing';
+            if (this.currentIndex >= this.questions.length - 1) { this.finishGame(); return; }
+            this.currentIndex++; this.selectedAnswer = null; this.revealed = false; this.phase = 'playing';
             this.startTimer();
         },
 
@@ -417,40 +643,28 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount }) {
             clearInterval(this.timerInterval);
             this.totalTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
             this.phase = 'finished';
-
+            playSound('finish');
             try {
                 const res = await fetch('/api/game/score', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    },
-                    body: JSON.stringify({
-                        player_name:     this.playerName,
-                        score:           this.score,
-                        correct_answers: this.correctCount,
-                        total_questions: this.questions.length,
-                        time_seconds:    this.totalTime,
-                        difficulty:      this.difficulty,
-                    }),
+                    headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: JSON.stringify({ player_name:this.playerName, score:this.score, correct_answers:this.correctCount, total_questions:this.questions.length, time_seconds:this.totalTime, difficulty:this.difficulty, max_generation:this.maxGen, max_streak:this.maxStreak, token:this.gameToken }),
                 });
                 const data = await res.json();
                 this.rank = data.rank;
-            } catch (e) {
-                console.error(e);
-            }
+            } catch(e) {}
         },
 
         restartGame() {
-            const params = new URLSearchParams({ player: this.playerName, difficulty: this.difficulty });
-            window.location.href = `/game?${params}`;
+            const p = new URLSearchParams({ player:this.playerName, difficulty:this.difficulty, max_generation:this.maxGen, question_count:this.questionCount });
+            window.location.href = `/game?${p}`;
         },
 
         getOptionClass(option) {
-            if (this.selectedAnswer === null) return 'border-white/10 text-white hover:border-white/25';
-            if (option === this.current.answer) return 'answer-correct border';
-            if (option === this.selectedAnswer) return 'answer-wrong border';
-            return 'answer-wrong border opacity-40';
+            if (this.selectedAnswer === null) return 'opt-idle';
+            if (option === this.current.answer) return 'opt-correct';
+            if (option === this.selectedAnswer) return 'opt-wrong';
+            return 'opt-wrong';
         },
 
         triggerScoreFlash() {
@@ -458,10 +672,8 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount }) {
             setTimeout(() => { this.scoreFlash = false; }, 500);
         },
 
-        formatTime(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
+        formatTime(s) {
+            return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
         },
     };
 }

@@ -9,5 +9,6 @@ class Score extends Model
     protected $fillable = [
         'player_name', 'score', 'correct_answers',
         'total_questions', 'time_seconds', 'difficulty',
+        'max_generation', 'max_streak',
     ];
 }

@@ -8,7 +8,7 @@ class Pokemon extends Model
 {
     protected $table = 'pokemon';
 
-    protected $fillable = ['pokedex_id', 'name', 'display_name', 'types', 'artwork_url'];
+    protected $fillable = ['pokedex_id', 'generation', 'name', 'display_name', 'types', 'artwork_url'];
 
     protected $casts = [
         'types' => 'array',
