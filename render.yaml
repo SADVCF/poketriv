@@ -1,0 +1,67 @@
+# render.yaml — Infrastructure as Code para Render.com
+# Con este archivo, Render crea la BD y la app automáticamente.
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # ── Aplicación web ──────────────────────────────────────────────────────────
+  - type: web
+    name: poketriv
+    runtime: docker          # Usamos nuestro Dockerfile
+    plan: free               # Plan gratuito (se duerme tras 15 min inactivo)
+    dockerfilePath: ./Dockerfile
+
+    envVars:
+      # APP_KEY se genera automáticamente (¡nunca hardcodear!)
+      - key: APP_KEY
+        generateValue: true
+
+      - key: APP_ENV
+        value: production
+
+      - key: APP_DEBUG
+        value: false         # SIEMPRE false en producción
+
+      # Conexión a la BD PostgreSQL (Render la inyecta desde el servicio de abajo)
+      - key: DB_CONNECTION
+        value: pgsql
+
+      - key: DB_HOST
+        fromDatabase:
+          name: poketriv-db
+          property: host
+
+      - key: DB_PORT
+        fromDatabase:
+          name: poketriv-db
+          property: port
+
+      - key: DB_DATABASE
+        fromDatabase:
+          name: poketriv-db
+          property: database
+
+      - key: DB_USERNAME
+        fromDatabase:
+          name: poketriv-db
+          property: user
+
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: poketriv-db
+          property: password
+
+      # Sesiones en cookie (el disco de Render es efímero)
+      - key: SESSION_DRIVER
+        value: cookie
+
+      - key: CACHE_DRIVER
+        value: array
+
+      - key: LOG_CHANNEL
+        value: stderr         # Los logs van a Render Dashboard
+
+# ── Base de datos PostgreSQL ────────────────────────────────────────────────
+databases:
+  - name: poketriv-db
+    databaseName: poketriv
+    plan: free               # 1 GB gratis, suficiente para este proyecto
