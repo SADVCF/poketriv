@@ -703,6 +703,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
             clearInterval(this.timerInterval);
             this.selectedAnswer = option;
             this.revealed = true;
+            this.imgLoaded = true;
             const ok = option === this.current.answer;
             if (ok) {
                 this.streak++;
@@ -727,6 +728,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
             if (this.selectedAnswer !== null) return;
             this.selectedAnswer = '__timeout__'; this.streak = 0;
             this.revealed = true; this.phase = 'wrong';
+            this.imgLoaded = true;
             playSound('timeout');
             setTimeout(() => this.nextQuestion(), 1600);
         },

@@ -1065,6 +1065,7 @@ function leagueGame({ playerName }) {
             clearInterval(this.timerInterval);
             this.selectedAnswer = option;
             this.revealed = true;
+            this.imgLoaded = true;
             if (this.current.stage > this.maxStageReached) this.maxStageReached = this.current.stage;
 
             const ok = option === this.current.answer;
@@ -1103,6 +1104,7 @@ function leagueGame({ playerName }) {
             if (this.selectedAnswer !== null) return;
             this.selectedAnswer = '__timeout__';
             this.revealed = true;
+            this.imgLoaded = true;
             this.streak = 0;
             if (this.current && this.current.stage > this.maxStageReached) this.maxStageReached = this.current.stage;
             playSound('timeout');
