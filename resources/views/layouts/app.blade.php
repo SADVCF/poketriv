@@ -99,7 +99,7 @@
         @keyframes fade-in   { from{opacity:0} to{opacity:1} }
         @keyframes shake     { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
         @keyframes pop-scale { 0%{transform:scale(1)} 40%{transform:scale(1.07)} 100%{transform:scale(1)} }
-        @keyframes reveal-pokemon { from{filter:brightness(0) contrast(1.1)} to{filter:brightness(1)} }
+        @keyframes reveal-pokemon { from{filter:brightness(0) contrast(1.1) drop-shadow(0 4px 24px rgba(0,0,0,.5))} to{filter:brightness(1) drop-shadow(0 4px 24px rgba(0,0,0,.5))} }
         @keyframes spin      { to{transform:rotate(360deg)} }
         @keyframes score-bump { 0%{color:var(--text)} 40%{transform:scale(1.3);color:var(--yellow)} 100%{transform:scale(1);color:var(--text)} }
         @keyframes points-float { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-48px) scale(1.25)} }

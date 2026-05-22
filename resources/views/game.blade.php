@@ -6,8 +6,8 @@
 /* ── Game-specific styles ──────────────────────────────────────────── */
 
 /* silhouette */
-.poke-silhouette { filter: brightness(0) contrast(1.1); }
-.poke-reveal     { animation: reveal-pokemon .55s ease-out forwards; }
+.poke-silhouette { filter: brightness(0) contrast(1.1) drop-shadow(0 4px 24px rgba(0,0,0,.5)); }
+.poke-reveal     { animation: reveal-pokemon .55s ease-out forwards; filter: drop-shadow(0 4px 24px rgba(0,0,0,.5)); }
 
 /* answer button states */
 .opt-idle    { background:var(--surface-2); border-color:var(--border-mid); color:var(--text); }
@@ -363,7 +363,6 @@
     width: clamp(160px, 35vw, 220px);
     height: clamp(160px, 35vw, 220px);
     object-fit: contain;
-    filter: drop-shadow(0 4px 24px rgba(0,0,0,.5));
     transition: filter .55s ease, opacity .3s ease;
 }
 @keyframes poke-fade-in {
