@@ -306,15 +306,15 @@
              </div>
 
              <div class="type-row"
-                 x-show="current && current.question_type !== 'silhouette' && current.question_type !== 'pixelated'">
+                  x-show="current && current.question_type !== 'silhouette' && current.question_type !== 'pixelated' && current.question_type !== 'blur_reveal' && current.question_type !== 'flash' && current.question_type !== 'type' && current.question_type !== 'description'">
                 <template x-for="t in (current?.types ?? [])" :key="t">
                     <span class="type-badge" :class="`type-${t}`" x-text="t"></span>
                 </template>
             </div>
         </div>
 
-        {{-- WEIGHT: two images side by side --}}
-        <div x-show="current && current.question_type === 'weight'" class="weight-stage">
+        {{-- DUAL IMAGE (weight / size) --}}
+        <div x-show="current && (current.question_type === 'weight' || current.question_type === 'size')" class="weight-stage">
             <div class="weight-side">
                 <img :src="current?.artwork_url ?? ''" class="weight-img"
                      :style="`opacity:${imgLoaded ? 1 : 0}`"
@@ -330,21 +330,29 @@
             </div>
         </div>
 
-        {{-- SINGLE IMAGE --}}
-        <div x-show="current && current.question_type !== 'weight'" class="poke-stage">
+        {{-- SINGLE IMAGE (includes description text) --}}
+        <div x-show="current && current.question_type !== 'weight' && current.question_type !== 'size'" class="poke-stage">
             <img
                 :key="currentIndex"
                 :src="current ? current.artwork_url : ''"
                 :alt="shouldRevealName ? (current?.pokemon_name ?? '') : '???'"
                 :class="['poke-img', imgClass]"
-                :style="`opacity:${imgLoaded ? 1 : 0}; ${imgFilter}`"
+                :style="`opacity:${imgLoaded && (revealed || (current?.question_type !== 'description' && flashVisible)) ? 1 : 0}; ${imgFilter}`"
                 @@load="imgLoaded = true"
                 @@error="imgLoaded = true"
             >
+            <div x-show="current?.question_type === 'flash' && !flashVisible"
+                 style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg-card);border-radius:10px;font-size:40px;opacity:.5">
+                💡
+            </div>
+            <div x-show="current?.question_type === 'description' && !revealed"
+                 style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--text-muted);line-height:1.5;letter-spacing:.02em;text-align:center;padding:16px;overflow-y:auto;word-break:break-word">
+                <span x-text="current?.description ?? ''"></span>
+            </div>
         </div>
 
-        {{-- Pokemon name row (non-weight) --}}
-        <div x-show="current && current.question_type !== 'weight'" class="poke-name-row">
+        {{-- Pokemon name row (not weight/size/description) --}}
+        <div x-show="current && current.question_type !== 'weight' && current.question_type !== 'size' && current.question_type !== 'description'" class="poke-name-row">
             <span x-show="shouldRevealName" class="poke-name" x-text="current ? current.pokemon_name : ''"></span>
             <span x-show="!shouldRevealName" class="poke-unknown">? ? ?</span>
         </div>
@@ -352,12 +360,6 @@
         {{-- Question text --}}
         <div x-show="current" style="text-align:center;padding:4px 16px 8px;font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--text-muted)"
              x-text="current?.question_text ?? ''"></div>
-
-        {{-- Stats hint banner --}}
-        <div x-show="statsHintText" x-transition
-             style="margin:0 16px 6px;padding:6px 10px;border-radius:7px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.35);font-family:var(--font-mono);font-size:11px;font-weight:700;color:#f97316;text-align:center;letter-spacing:.05em">
-            📊 <span x-text="statsHintText"></span>
-        </div>
 
         {{-- Freeze indicator --}}
         <div x-show="freezeActive" x-transition
@@ -411,14 +413,12 @@
                 @click="useWildcard(wc.id)"
                 :disabled="selectedAnswer !== null || (wc.id === 'shield' && shieldActive)"
                 :title="wc.name + ': ' + wc.desc"
-                :style="`border:1.5px solid ${wc.color}60;background:${wc.color}12;color:${wc.color};${wc.id === 'shield' && !shieldActive ? 'opacity:.5' : ''}`"
+                :style="`border:1.5px solid ${wc.color}60;background:${wc.color}12;color:${wc.color};`"
                 style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:var(--font-mono);font-size:11px;font-weight:700;transition:all .12s;letter-spacing:.03em"
                 :class="selectedAnswer !== null && wc.id !== 'shield' ? 'op-50' : ''"
             >
                 <span x-text="wc.icon" style="font-size:16px;line-height:1"></span>
                 <span x-text="wc.name"></span>
-                <span x-show="wc.id === 'shield' && shieldActive" style="font-size:9px;opacity:.7"> ACTIVO</span>
-                <span x-show="wc.id === 'shield' && !shieldActive" style="font-size:9px;opacity:.5"> (click para activar)</span>
             </button>
         </template>
     </div>
@@ -841,6 +841,7 @@ function leagueGame({ playerName }) {
         selectedAnswer: null,
         score: 0,
         streak: 0,
+        flashVisible: true,
         maxStreak: 0,
         correctCount: 0,
         maxStageReached: 1,
@@ -869,37 +870,43 @@ function leagueGame({ playerName }) {
         shieldBlocked: false,
         hiddenOptions: [],
         typeRevealed: false,
-        statsHintText: '',
-        statsHintTimer: null,
-        skipUsedThisGame: false,
 
         get current()     { return this.questions[this.currentIndex] ?? null; },
         get currentStage(){ return this.current?.stage ?? 1; },
         get progress()    { return (this.currentIndex / 40) * 100; },
 
         get pokemonAName() {
-            if (!this.current || this.current.question_type !== 'weight') return '';
+            if (!this.current || (this.current.question_type !== 'weight' && this.current.question_type !== 'size')) return '';
             return this.current.options.find(o => o !== this.current.display_name_b) ?? '';
         },
 
         get shouldRevealName() {
             if (!this.current) return false;
             const qt = this.current.question_type;
-            if (qt === 'silhouette' || qt === 'pixelated') return this.revealed;
+            if (qt === 'silhouette' || qt === 'pixelated' || qt === 'blur_reveal' || qt === 'flash' || qt === 'description') return this.revealed;
             return true;
         },
 
         get imgClass() {
-            if (!this.current || this.current.question_type !== 'silhouette') return '';
+            if (!this.current) return '';
+            const qt = this.current.question_type;
+            if (qt === 'silhouette' && !this.revealed) return 'poke-silhouette';
+            if (qt === 'blur_reveal' && !this.revealed) return '';
             if (this.revealed) return 'poke-reveal';
-            return 'poke-silhouette';
+            return '';
         },
 
         get imgFilter() {
             if (!this.current || this.revealed) return '';
-            if (this.current.question_type === 'pixelated') {
+            const qt = this.current.question_type;
+            if (qt === 'pixelated') {
                 const t = this.current.time_limit;
                 const blur = Math.max(0, (this.timeLeft / t) * 18);
+                return `filter: blur(${blur.toFixed(1)}px) drop-shadow(0 4px 24px rgba(0,0,0,.5))`;
+            }
+            if (qt === 'blur_reveal') {
+                const t = this.current.time_limit;
+                const blur = Math.max(0, (this.timeLeft / t) * 20);
                 return `filter: blur(${blur.toFixed(1)}px) drop-shadow(0 4px 24px rgba(0,0,0,.5))`;
             }
             return '';
@@ -1027,6 +1034,10 @@ function leagueGame({ playerName }) {
             clearInterval(this.timerInterval);
             this.timerStart = Date.now();
             this.timeLeft   = this.current?.time_limit ?? 15;
+            // flash: hide image after 1s
+            if (this.current?.question_type === 'flash') {
+                setTimeout(() => { this.flashVisible = false; }, 1000);
+            }
             this.timerInterval = setInterval(() => {
                 const now = Date.now();
                 const limit = this.current?.time_limit ?? 15;
@@ -1131,8 +1142,8 @@ function leagueGame({ playerName }) {
             this.imgBLoaded     = false;
             this.hiddenOptions  = [];
             this.typeRevealed   = false;
-            this.statsHintText  = '';
             this.timerFrozenUntil = 0;
+            this.flashVisible   = true;
             this.$nextTick(() => {
                 this.currentIndex++;
                 this.selectedAnswer = null;
@@ -1207,32 +1218,24 @@ function leagueGame({ playerName }) {
 
         // ── Comodines ──────────────────────────────────────────────
         pickWildcardChoices() {
-            const pool = [
-                { id:'fifty_fifty',  name:'50/50',           desc:'Elimina 2 respuestas incorrectas',          icon:'⚡', color:'#ffcb05' },
-                { id:'reveal_type',  name:'Saber tipo',      desc:'Revela el tipo del Pokémon',                icon:'🔍', color:'#a78bfa' },
-                { id:'freeze_time',  name:'Congelar tiempo', desc:'Detiene el cronómetro 10 segundos',         icon:'❄️', color:'#96D9D6' },
-                { id:'shield',       name:'Escudo',          desc:'Absorbe el siguiente fallo sin perder vida',icon:'🛡️', color:'#2ed573' },
-                { id:'stats_hint',   name:'Estadísticas',    desc:'Muestra una pista sobre el Pokémon actual', icon:'📊', color:'#f97316' },
-                { id:'skip',         name:'Saltar',          desc:'Cambia la pregunta sin penalización (×1)',  icon:'⏭️', color:'#6390F0' },
-            ];
-            const inventoryIds = new Set(this.wildcardInventory.map(w => w.id));
-            const available = pool.filter(w => {
-                if (w.id === 'shield' && this.shieldActive) return false;
-                if (w.id === 'skip' && this.skipUsedThisGame) return false;
-                if (inventoryIds.has(w.id)) return false;
-                return true;
-            });
+			const pool = [
+				{ id:'fifty_fifty',  name:'50/50',           desc:'Elimina 2 respuestas incorrectas',          icon:'⚡', color:'#ffcb05' },
+				{ id:'reveal_type',  name:'Saber tipo',      desc:'Revela el tipo del Pokémon',                icon:'🔍', color:'#a78bfa' },
+				{ id:'freeze_time',  name:'Congelar tiempo', desc:'Detiene el cronómetro 10 segundos',         icon:'❄️', color:'#96D9D6' },
+				{ id:'shield',       name:'Escudo',          desc:'Absorbe el siguiente fallo sin perder vida',icon:'🛡️', color:'#2ed573' },
+			];
+			const inventoryIds = new Set(this.wildcardInventory.map(w => w.id));
+			const available = pool.filter(w => {
+				if (w.id === 'shield' && this.shieldActive) return false;
+				if (inventoryIds.has(w.id)) return false;
+				return true;
+			});
             return available.sort(() => Math.random() - .5).slice(0, 3);
         },
 
         selectWildcard(wc) {
             this.wildcardChoiceActive = false;
-            if (wc.id === 'shield') {
-                this.shieldActive = true;
-                if (this.wildcardInventory.length < 3) {
-                    this.wildcardInventory.push({...wc});
-                }
-            } else if (this.wildcardInventory.length < 3) {
+            if (this.wildcardInventory.length < 3) {
                 this.wildcardInventory.push(wc);
             }
             this.nextQuestion();
@@ -1260,42 +1263,6 @@ function leagueGame({ playerName }) {
                     break;
                 case 'shield':
                     this.shieldActive = true;
-                    this.wildcardInventory.push({...wc});
-                    break;
-                case 'stats_hint': {
-                    const q = this.current;
-                    if (q) {
-                        const hints = [];
-                        if (q.height) hints.push(`📏 ${q.height}m`);
-                        if (q.weight) hints.push(`⚖️ ${q.weight}kg`);
-                        const statLabels = {hp:'HP',attack:'Ataque',defense:'Defensa',sp_atk:'At.Esp',sp_def:'Def.Esp',speed:'Vel'};
-                        let bestStat = '', bestVal = -1, worstStat = '', worstVal = 9999;
-                        for (const [k,label] of Object.entries(statLabels)) {
-                            if (q[k] != null) {
-                                if (q[k] > bestVal) { bestVal = q[k]; bestStat = label; }
-                                if (q[k] < worstVal) { worstVal = q[k]; worstStat = label; }
-                            }
-                        }
-                        if (bestStat) hints.push(`⭐ Mejor stat: ${bestStat} (${bestVal})`);
-                        if (worstStat) hints.push(`💤 Peor stat: ${worstStat} (${worstVal})`);
-                        const total = ['hp','attack','defense','sp_atk','sp_def','speed'].reduce((s,k) => s + (q[k]||0), 0);
-                        if (total > 0) hints.push(`📊 BST: ${total}`);
-                        // comparative
-                        if (q.speed != null && q.attack != null) {
-                            hints.push(q.speed > q.attack ? '💨 Más veloz que fuerte' : '💪 Más fuerte que veloz');
-                        }
-                        if (q.hp != null && q.defense != null) {
-                            hints.push(q.hp > q.defense ? '❤️ Gran resistencia' : '🛡️ Gran defensa');
-                        }
-                        this.statsHintText = hints[Math.floor(Math.random() * hints.length)];
-                        clearTimeout(this.statsHintTimer);
-                        this.statsHintTimer = setTimeout(() => { this.statsHintText = ''; }, 6000);
-                    }
-                    break;
-                }
-                case 'skip':
-                    this.skipUsedThisGame = true;
-                    this.nextQuestion();
                     break;
             }
         },

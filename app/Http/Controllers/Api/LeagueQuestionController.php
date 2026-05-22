@@ -96,15 +96,20 @@ class LeagueQuestionController extends Controller
     {
         $hasStats  = $pokemon->hp !== null;
         $hasWeight = $pokemon->weight !== null;
+        $hasHeight = $pokemon->height !== null;
 
         // weighted random pick
         $weights = [
-            'silhouette' => 30,
-            'type'       => 20,
-            'pixelated'  => 15,
-            'who_wins'   => 15,
-            'stat'       => $hasStats  ? 10 : 0,
-            'weight'     => $hasWeight ? 10 : 0,
+            'silhouette'  => 20,
+            'type'        => 13,
+            'pixelated'   => 9,
+            'who_wins'    => 9,
+            'stat'        => $hasStats  ? 9  : 0,
+            'weight'      => $hasWeight ? 7  : 0,
+            'blur_reveal' => 10,
+            'flash'       => 7,
+            'size'        => ($hasWeight && $hasHeight) ? 9 : 0,
+            'description' => $pokemon->description ? 12 : 0,
         ];
 
         $total = array_sum($weights);
@@ -147,6 +152,7 @@ class LeagueQuestionController extends Controller
             'speed'         => $pokemon->speed,
             'weight'        => $pokemon->weight,
             'height'        => $pokemon->height,
+            'description'   => $pokemon->description,
         ];
 
         return match ($qType) {
@@ -156,6 +162,10 @@ class LeagueQuestionController extends Controller
             'who_wins'   => $this->buildWhoWins($base, $pokemon, $stage, $pool),
             'stat'       => $this->buildStat($base, $pokemon),
             'weight'     => $this->buildWeight($base, $pokemon, $pool),
+            'blur_reveal'=> $this->buildBlurReveal($base, $pokemon, $stage, $allNames),
+            'flash'      => $this->buildFlash($base, $pokemon, $stage, $allNames),
+            'size'       => $this->buildSize($base, $pokemon, $pool),
+            'description'=> $this->buildDescription($base, $pokemon, $stage, $allNames),
             default      => $this->buildSilhouette($base, $pokemon, $stage, $allNames),
         };
     }
@@ -180,7 +190,7 @@ class LeagueQuestionController extends Controller
     {
         $correctType = $pokemon->types[0] ?? 'normal';
         $wrongTypes  = collect(self::TYPES)
-            ->reject(fn($t) => $t === $correctType)
+            ->reject(fn($t) => in_array($t, $pokemon->types))
             ->shuffle()
             ->take(3)
             ->values()
@@ -301,6 +311,71 @@ class LeagueQuestionController extends Controller
             'options'        => $options,
             'artwork_url_b'  => $pokemonB->artwork_url,
             'display_name_b' => $pokemonB->display_name,
+        ]);
+    }
+
+    private function buildBlurReveal(array $base, Pokemon $pokemon, array $stage, $allNames): array
+    {
+        return array_merge($base, [
+            'question_text' => '¿Quién se esconde tras el desenfoque?',
+            'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
+            'time_limit'    => max(8, $stage['timeLimit'] + 2),
+        ]);
+    }
+
+    private function buildFlash(array $base, Pokemon $pokemon, array $stage, $allNames): array
+    {
+        return array_merge($base, [
+            'question_text' => '¿Qué Pokémon has visto?',
+            'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
+        ]);
+    }
+
+    private function buildSize(array $base, Pokemon $pokemonA, $pool): array
+    {
+        $candidates = $pool->filter(fn($c) => $c->id !== $pokemonA->id
+            && $c->weight !== null && $c->height !== null);
+
+        if ($candidates->isEmpty()) {
+            $allNames = $pool->pluck('display_name', 'id');
+            return $this->buildSilhouette(
+                array_merge($base, ['question_type' => 'silhouette']),
+                $pokemonA, ['options' => 4], $allNames
+            );
+        }
+
+        $pokemonB = $candidates->shuffle()->first();
+        $askWeight = mt_rand(0, 1) === 0;
+
+        if ($askWeight) {
+            $answer = $pokemonA->weight >= $pokemonB->weight
+                ? $pokemonA->display_name : $pokemonB->display_name;
+        } else {
+            $answer = $pokemonA->height >= $pokemonB->height
+                ? $pokemonA->display_name : $pokemonB->display_name;
+        }
+
+        $options = collect([$pokemonA->display_name, $pokemonB->display_name])
+            ->shuffle()->values()->toArray();
+
+        return array_merge($base, [
+            'question_text'  => $askWeight
+                ? '¿Cuál pesa más?'
+                : '¿Cuál es más alto?',
+            'answer'         => $answer,
+            'options'        => $options,
+            'artwork_url_b'  => $pokemonB->artwork_url,
+            'display_name_b' => $pokemonB->display_name,
+            'size_ask_weight'=> $askWeight,
+        ]);
+    }
+
+    private function buildDescription(array $base, Pokemon $pokemon, array $stage, $allNames): array
+    {
+        return array_merge($base, [
+            'question_text' => '¿Qué Pokémon es?',
+            'description'   => $pokemon->description,
+            'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
         ]);
     }
 

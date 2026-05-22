@@ -61,6 +61,27 @@
 /* question slide animation */
 .q-enter { animation:slide-right .3s ease-out; }
 </style>
+
+/* Descripción Pokémon */
+.poke-desc-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70px;
+    padding: 18px 18px 0 18px;
+}
+.poke-desc {
+    font-family: var(--font-ui);
+    font-size: 16px;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 90%;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 10px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
 @endpush
 
 @section('content')
@@ -147,35 +168,35 @@
             <span x-show="pointsPopup.genMult > 1" style="font-size:14px;color:#a78bfa;"> (×<span x-text="pointsPopup.genMult.toFixed(2)"></span>🌍)</span>
         </div>
 
-        {{-- Card header: gen badge + type badges --}}
+        {{-- Card header: gen badge --}}
         <div class="card-header">
             <span class="gen-pill" x-show="current" x-text="'GEN ' + (current?.generation ?? '?')"></span>
-            <div class="type-row" x-show="revealed || difficulty !== 'hard'">
-                <template x-for="t in (current ? current.types : [])" :key="t">
-                    <span class="type-badge" :class="`type-${t}`" x-text="t"></span>
-                </template>
+        </div>
+
+        {{-- Descripción del Pokémon (solo mostrar antes de revelar) --}}
+        <div class="poke-desc-row" x-show="!revealed">
+            <span class="poke-desc" x-text="current && current.description ? current.description : ''"></span>
+        </div>
+
+        {{-- Pokemon image y nombre solo si está revelado --}}
+        <template x-if="revealed">
+            <div>
+                <div class="poke-stage">
+                    <img
+                        :key="currentIndex"
+                        :src="current ? current.artwork_url : ''"
+                        :alt="current ? current.answer : ''"
+                        class="poke-img poke-reveal"
+                        :style="`opacity:${imgLoaded ? 1 : 0}`"
+                        @@load="imgLoaded = true"
+                        @@error="imgLoaded = true"
+                    >
+                </div>
+                <div class="poke-name-row">
+                    <span class="poke-name" x-text="current ? current.answer : ''"></span>
+                </div>
             </div>
-            <div x-show="!revealed && difficulty === 'hard'" style="height:22px;"></div>
-        </div>
-
-        {{-- Pokemon image --}}
-        <div class="poke-stage">
-            <img
-                :key="currentIndex"
-                :src="current ? current.artwork_url : ''"
-                :alt="revealed ? (current ? current.answer : '') : '???'"
-                :class="['poke-img', difficulty === 'hard' && !revealed ? 'poke-silhouette' : '', difficulty === 'hard' && revealed ? 'poke-reveal' : '']"
-                :style="`opacity:${imgLoaded ? 1 : 0}`"
-                @@load="imgLoaded = true"
-                @@error="imgLoaded = true"
-            >
-        </div>
-
-        {{-- Pokemon name --}}
-        <div class="poke-name-row">
-            <span x-show="revealed" class="poke-name" x-text="current ? current.answer : ''"></span>
-            <span x-show="!revealed" class="poke-unknown">? ? ?</span>
-        </div>
+        </template>
 
         {{-- HP bar timer ── the signature element --}}
         <div class="hp-bar-section">
