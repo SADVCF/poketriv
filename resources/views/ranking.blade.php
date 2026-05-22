@@ -16,10 +16,20 @@
 
         {{-- Difficulty --}}
         <div class="filter-row">
-            @foreach(['all' => 'Todos', 'easy' => '😊 Fácil', 'medium' => '🔥 Medio', 'hard' => '💀 Difícil'] as $val => $label)
+            @php
+                $ballPoke = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#ee1515"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
+                $ballGreat = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#1565C0"/><path d="M7 9h4" transform="rotate(180 9 9)" fill="none" stroke="#C62828" stroke-width="1.8"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
+                $ballUltra = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#222"/><path d="M5 7.5h8M7 9h4M5 10.5h6" stroke="#FFD600" stroke-width="1.2" stroke-linecap="round"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
+                $ballMap = ['easy' => $ballPoke, 'medium' => $ballGreat, 'hard' => $ballUltra];
+                $filterLabels = ['all' => ['Todos'], 'easy' => ['Fácil', $ballPoke], 'medium' => ['Medio', $ballGreat], 'hard' => ['Difícil', $ballUltra]];
+            @endphp
+            @foreach($filterLabels as $val => $item)
                 <a href="{{ route('ranking', ['difficulty' => $val, 'max_generation' => $maxGen]) }}"
                    class="filter-btn {{ $difficulty === $val ? 'filter-btn--on' : '' }}"
-                >{{ $label }}</a>
+                >
+                    @if (count($item) > 1)<span class="filter-ball">{!! $item[1] !!}</span>@endif
+                    <span>{{ $item[0] }}</span>
+                </a>
             @endforeach
         </div>
 
@@ -72,6 +82,30 @@
     @else
 
     {{-- ── TOP 3 PODIUM ─────────────────────────────────────────── --}}
+    @php
+        $trophySvg = fn($color, $light, $dark) => '<svg viewBox="0 0 28 32" width="32" height="36" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))">'
+            .'<!-- handles -->'
+            .'<path d="M5 9C1 9 1 14 5 14" fill="none" stroke="'.$color.'" stroke-width="2.5" stroke-linecap="round"/>'
+            .'<path d="M23 9C27 9 27 14 23 14" fill="none" stroke="'.$color.'" stroke-width="2.5" stroke-linecap="round"/>'
+            .'<!-- cup bowl -->'
+            .'<path d="M4 6C4 1 24 1 24 6L23 14Q14 17 5 14Z" fill="'.$color.'" stroke="'.$dark.'" stroke-width="0.8"/>'
+            .'<!-- pokeball emblem on cup -->'
+            .'<circle cx="14" cy="8" r="3.5" fill="#f5f5f5" stroke="'.$dark.'" stroke-width="0.5"/>'
+            .'<path d="M10.5 8a3.5 3.5 0 0 1 7 0" fill="'.$dark.'" opacity="0.5"/>'
+            .'<path d="M10.5 8h7" stroke="'.$dark.'" stroke-width="0.5"/>'
+            .'<circle cx="14" cy="8" r="1" fill="#f5f5f5" stroke="'.$dark.'" stroke-width="0.4"/>'
+            .'<!-- stem -->'
+            .'<rect x="11.5" y="15" width="5" height="6" fill="'.$color.'" stroke="'.$dark.'" stroke-width="0.8"/>'
+            .'<!-- base -->'
+            .'<rect x="8" y="21" width="12" height="3" rx="1" fill="'.$color.'" stroke="'.$dark.'" stroke-width="0.8"/>'
+            .'<!-- highlight -->'
+            .'<path d="M8 4a6 6 0 0 1 4-1" fill="none" stroke="'.$light.'" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>'
+            .'</svg>';
+        $trophyGold   = $trophySvg('#FFD700', '#FFF8DC', '#B8860B');
+        $trophySilver = $trophySvg('#C0C0C0', '#F5F5F5', '#808080');
+        $trophyBronze = $trophySvg('#CD7F32', '#F5DEB3', '#8B4513');
+    @endphp
+
     @if($scores->count() >= 3)
     @php $top3 = $scores->take(3); @endphp
     <div class="podium">
@@ -79,7 +113,7 @@
         {{-- 2nd --}}
         <div class="podium-slot podium-slot--2">
             <div class="podium-card">
-                <div class="podium-medal">🥈</div>
+                <div class="podium-medal">{!! $trophySilver !!}</div>
                 <div class="podium-name">{{ $top3[1]->player_name }}</div>
                 <div class="podium-score">{{ number_format($top3[1]->score) }}</div>
                 <div class="podium-sub">{{ $top3[1]->correct_answers }}/{{ $top3[1]->total_questions }} aciertos</div>
@@ -93,7 +127,7 @@
         {{-- 1st --}}
         <div class="podium-slot podium-slot--1">
             <div class="podium-card podium-card--1">
-                <div class="podium-medal" style="font-size:32px">🏆</div>
+                <div class="podium-medal">{!! $trophyGold !!}</div>
                 <div class="podium-name" style="font-size:16px">{{ $top3[0]->player_name }}</div>
                 <div class="podium-score podium-score--1">{{ number_format($top3[0]->score) }}</div>
                 <div class="podium-sub">{{ $top3[0]->correct_answers }}/{{ $top3[0]->total_questions }} aciertos</div>
@@ -107,7 +141,7 @@
         {{-- 3rd --}}
         <div class="podium-slot podium-slot--3">
             <div class="podium-card">
-                <div class="podium-medal">🥉</div>
+                <div class="podium-medal">{!! $trophyBronze !!}</div>
                 <div class="podium-name">{{ $top3[2]->player_name }}</div>
                 <div class="podium-score">{{ number_format($top3[2]->score) }}</div>
                 <div class="podium-sub">{{ $top3[2]->correct_answers }}/{{ $top3[2]->total_questions }} aciertos</div>
@@ -162,12 +196,8 @@
                         @endif
                     </td>
                     <td class="text-center td-diff">
-                        @php
-                            $icons = ['easy' => '😊', 'medium' => '🔥', 'hard' => '💀'];
-                            $labels = ['easy' => 'F', 'medium' => 'M', 'hard' => 'D'];
-                        @endphp
-                        <span class="diff-dot diff-dot--{{ $s->difficulty }}" title="{{ $s->difficulty }}">
-                            {{ $icons[$s->difficulty] ?? '?' }}
+                        <span class="diff-dot" title="{{ $s->difficulty }}">
+                            {!! $ballMap[$s->difficulty] ?? $ballPoke !!}
                         </span>
                     </td>
                 </tr>
@@ -214,6 +244,7 @@
     font-family: var(--font-ui); font-size: 13px; font-weight: 600;
     color: var(--text-muted); text-decoration: none;
     transition: all .15s;
+    display: inline-flex; align-items: center; gap: 6px;
 }
 .filter-btn:hover { color: var(--text); border-color: var(--border-hi); }
 .filter-btn--on {
@@ -238,7 +269,7 @@
     border-color: rgba(255,203,5,.4);
     box-shadow: 0 0 28px rgba(255,203,5,.15);
 }
-.podium-medal { font-size: 24px; margin-bottom: 6px; }
+.podium-medal { display:flex; align-items:center; justify-content:center; margin-bottom: 6px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.3)); }
 .podium-name {
     font-family: var(--font-ui); font-weight: 700; font-size: 13px;
     color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -320,6 +351,7 @@
     padding: 2px 8px; border-radius: 4px;
 }
 .td-diff { padding: 14px 16px; }
+.diff-dot { display: inline-flex; align-items: center; vertical-align: middle; }
 
 @media (max-width: 600px) { .hide-sm { display: none !important; } }
 .text-right  { text-align: right; }

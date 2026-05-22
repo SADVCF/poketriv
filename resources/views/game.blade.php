@@ -74,7 +74,6 @@
         maxGen: {{ $maxGen ?? 2 }},
         questionCount: {{ $questionCount ?? 10 }}
     })"
-    x-init="init()"
 >
 
 {{-- ── LOADING ────────────────────────────────────────────────────── --}}
@@ -162,11 +161,13 @@
         {{-- Pokemon image --}}
         <div class="poke-stage">
             <img
-                x-show="current"
+                :key="currentIndex"
                 :src="current ? current.artwork_url : ''"
                 :alt="revealed ? (current ? current.answer : '') : '???'"
                 :class="['poke-img', difficulty === 'hard' && !revealed ? 'poke-silhouette' : '', difficulty === 'hard' && revealed ? 'poke-reveal' : '']"
-                @@error="$el.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'"
+                :style="`opacity:${imgLoaded ? 1 : 0}`"
+                @@load="imgLoaded = true"
+                @@error="imgLoaded = true"
             >
         </div>
 
@@ -210,7 +211,7 @@
 <div x-show="phase === 'finished'" class="result-root" style="animation:fade-up .4s ease-out">
 
     <div class="result-hero">
-        <div class="result-emoji" x-text="resultEmoji"></div>
+        <div class="result-emoji" x-html="resultEmoji"></div>
         <h2 class="result-title" x-text="resultTitle"></h2>
         <p class="result-player" x-text="playerName"></p>
     </div>
@@ -239,7 +240,7 @@
     </div>
 
     <div class="result-diff-row">
-        <span class="chip" x-text="{ easy:'😊 Fácil', medium:'🔥 Medio', hard:'💀 Difícil' }[difficulty]"></span>
+        <span class="chip" style="display:inline-flex;align-items:center;gap:5px" x-html="difficultyBadge"></span>
         <span class="chip">🌍 Gen 1–<span x-text="maxGen"></span> (×<span x-text="genMultiplier.toFixed(2)"></span>)</span>
         <span x-show="maxStreak >= 3" class="chip chip--yellow">🔥 Racha <span x-text="maxStreak"></span></span>
     </div>
@@ -345,7 +346,11 @@
     height: clamp(160px, 35vw, 220px);
     object-fit: contain;
     filter: drop-shadow(0 4px 24px rgba(0,0,0,.5));
-    transition: filter .55s ease;
+    transition: filter .55s ease, opacity .3s ease;
+}
+@keyframes poke-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 .poke-name-row {
     text-align: center; min-height: 36px;
@@ -419,7 +424,7 @@
     padding-top: 16px;
 }
 .result-hero { text-align: center; margin-bottom: 4px; }
-.result-emoji { font-size: 52px; line-height: 1; margin-bottom: 10px; }
+.result-emoji { line-height: 1; margin-bottom: 10px; display:flex; justify-content:center; filter: drop-shadow(0 4px 20px rgba(0,0,0,.4)); }
 .result-title {
     font-family: var(--font-display); font-size: 36px; font-weight: 900;
     letter-spacing: .03em; color: var(--text); margin-bottom: 4px;
@@ -544,6 +549,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         timeLeft: timePerQuestion, timerInterval: null, timerStart: 0,
         gameStartTime: null, totalTime: 0,
         pointsPopup: { show: false, amount: 0, streakBonus: 0 },
+        imgLoaded: false,
 
         get current()     { return this.questions[this.currentIndex] ?? null; },
         get progress()    { return this.questions.length > 0 ? (this.currentIndex / this.questions.length) * 100 : 0; },
@@ -561,7 +567,63 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         },
         get resultEmoji() {
             const p = this.questions.length > 0 ? this.correctCount / this.questions.length : 0;
-            return p >= .9 ? '🏆' : p >= .7 ? '⭐' : p >= .5 ? '👍' : '💀';
+            const pika = (eyes, mouth, extra='') => `<svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 43L10 5L36 21Z" fill="#FFCB05" stroke="#c8a000" stroke-width="1"/>
+              <path d="M10 5L24 22L36 21Z" fill="#2a1a0a"/>
+              <path d="M82 43L90 5L64 21Z" fill="#FFCB05" stroke="#c8a000" stroke-width="1"/>
+              <path d="M90 5L76 22L64 21Z" fill="#2a1a0a"/>
+              <ellipse cx="50" cy="57" rx="40" ry="38" fill="#FFCB05" stroke="#c8a000" stroke-width="1.5"/>
+              <ellipse cx="21" cy="67" rx="10" ry="8" fill="#E8544A" opacity="0.9"/>
+              <ellipse cx="79" cy="67" rx="10" ry="8" fill="#E8544A" opacity="0.9"/>
+              <ellipse cx="50" cy="58" rx="2.5" ry="1.8" fill="#b89000"/>
+              ${eyes}
+              ${mouth}
+              ${extra}
+            </svg>`;
+            // ≥90% Pikachu eufórico: ojos guiñados (∪), sonrisa enorme con lengua, destellos eléctricos
+            const thrilled = pika(
+                `<path d="M30 50Q38 61 46 50" fill="none" stroke="#2a1a0a" stroke-width="3.2" stroke-linecap="round"/>
+                 <path d="M54 50Q62 61 70 50" fill="none" stroke="#2a1a0a" stroke-width="3.2" stroke-linecap="round"/>`,
+                `<path d="M32 67Q50 84 68 67" fill="none" stroke="#2a1a0a" stroke-width="3" stroke-linecap="round"/>
+                 <path d="M34 68Q50 83 66 68Q50 77 34 68Z" fill="white"/>
+                 <path d="M46 74Q50 80 54 74" fill="#FF6B88"/>`,
+                `<path d="M7 28L11 20L13 29L9 24Z" fill="#FFCB05" stroke="#c8a000" stroke-width="1"/>
+                 <path d="M89 22L94 15L95 24L91 19Z" fill="#FFCB05" stroke="#c8a000" stroke-width="1"/>
+                 <circle cx="21" cy="67" r="4" fill="white" opacity="0.35"/>
+                 <circle cx="79" cy="67" r="4" fill="white" opacity="0.35"/>`
+            );
+            // ≥70% Pikachu contento: ojos abiertos con brillo, sonrisa
+            const happy = pika(
+                `<ellipse cx="38" cy="50" rx="5.5" ry="6" fill="#2a1a0a"/>
+                 <ellipse cx="62" cy="50" rx="5.5" ry="6" fill="#2a1a0a"/>
+                 <circle cx="40" cy="48" r="2" fill="white"/>
+                 <circle cx="64" cy="48" r="2" fill="white"/>`,
+                `<path d="M34 66Q50 79 66 66" fill="none" stroke="#2a1a0a" stroke-width="3" stroke-linecap="round"/>`
+            );
+            // ≥50% Pikachu preocupado: cejas internas arriba, ojos neutros, boca plana
+            const worried = pika(
+                `<path d="M33 43Q38 39 43 42" fill="none" stroke="#2a1a0a" stroke-width="2" stroke-linecap="round"/>
+                 <path d="M57 42Q62 39 67 43" fill="none" stroke="#2a1a0a" stroke-width="2" stroke-linecap="round"/>
+                 <ellipse cx="38" cy="51" rx="5.5" ry="5.5" fill="#2a1a0a"/>
+                 <ellipse cx="62" cy="51" rx="5.5" ry="5.5" fill="#2a1a0a"/>
+                 <circle cx="40" cy="49" r="2" fill="white"/>
+                 <circle cx="64" cy="49" r="2" fill="white"/>`,
+                `<path d="M38 67Q50 72 62 67" fill="none" stroke="#2a1a0a" stroke-width="2.5" stroke-linecap="round"/>`
+            );
+            // <50% Pikachu triste: cejas tristes, párpados caídos, frunce, lágrima
+            const sad = pika(
+                `<path d="M32 43Q38 39 43 41" fill="none" stroke="#2a1a0a" stroke-width="2" stroke-linecap="round"/>
+                 <path d="M57 41Q62 39 68 43" fill="none" stroke="#2a1a0a" stroke-width="2" stroke-linecap="round"/>
+                 <ellipse cx="38" cy="52" rx="5.5" ry="5.5" fill="#2a1a0a"/>
+                 <ellipse cx="62" cy="52" rx="5.5" ry="5.5" fill="#2a1a0a"/>
+                 <circle cx="40" cy="50" r="2" fill="white"/>
+                 <circle cx="64" cy="50" r="2" fill="white"/>
+                 <path d="M32 49Q38 46 44 51" fill="#FFCB05" stroke="#FFCB05" stroke-width="2.2"/>
+                 <path d="M56 51Q62 46 68 49" fill="#FFCB05" stroke="#FFCB05" stroke-width="2.2"/>`,
+                `<path d="M34 70Q50 62 66 70" fill="none" stroke="#2a1a0a" stroke-width="3" stroke-linecap="round"/>`,
+                `<path d="M30 72Q32 63 34 72Q35 79 32 79Q29 79 30 72Z" fill="#88c4e8" stroke="#5590b8" stroke-width="0.8"/>`
+            );
+            return p >= .9 ? thrilled : p >= .7 ? happy : p >= .5 ? worried : sad;
         },
         get resultTitle() {
             const p = this.questions.length > 0 ? this.correctCount / this.questions.length : 0;
@@ -569,6 +631,14 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         },
         get genMultiplier() {
             return 1 + (this.maxGen - 1) * 0.15;
+        },
+        get difficultyBadge() {
+            const pokeball = `<svg width="15" height="15" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#fff"/><path d="M.5 10A9.5 9.5 0 0 1 19.5 10Z" fill="#e63232"/><line x1=".5" y1="10" x2="19.5" y2="10" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="9.5" fill="none" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="3.1" fill="#fff" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="1.3" fill="#1a1a1a"/></svg>`;
+            const greatball = `<svg width="15" height="15" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#fff"/><path d="M.5 10A9.5 9.5 0 0 1 19.5 10Z" fill="#2563eb"/><path d="M2.2 8.8L5.8 4.2L5.8 8.8Z" fill="#e63232"/><path d="M17.8 8.8L14.2 4.2L14.2 8.8Z" fill="#e63232"/><line x1=".5" y1="10" x2="19.5" y2="10" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="9.5" fill="none" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="3.1" fill="#fff" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="1.3" fill="#1a1a1a"/></svg>`;
+            const ultraball = `<svg width="15" height="15" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#fff"/><path d="M.5 10A9.5 9.5 0 0 1 19.5 10Z" fill="#1a1a1a"/><path d="M1 7A9.5 9.5 0 0 1 19 7L19 9A9.5 9.5 0 0 0 1 9Z" fill="#f7c823"/><line x1=".5" y1="10" x2="19.5" y2="10" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="9.5" fill="none" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="3.1" fill="#fff" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="1.3" fill="#f7c823"/></svg>`;
+            const labels = { easy: [pokeball,'Fácil'], medium: [greatball,'Medio'], hard: [ultraball,'Difícil'] };
+            const [icon, text] = labels[this.difficulty] ?? ['',''];
+            return icon + text;
         },
 
         async init() { await this.loadQuestions(); },
@@ -587,6 +657,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
                 this.questions = qs;
                 this.gameToken = data.token ?? '';
                 this.gameStartTime = Date.now();
+                this.imgLoaded = false;
                 this.phase = 'playing';
                 this.startTimer();
             } catch(e) { this.errorMsg = 'Error de conexión'; this.phase = 'error'; }
@@ -641,8 +712,14 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
 
         nextQuestion() {
             if (this.currentIndex >= this.questions.length - 1) { this.finishGame(); return; }
-            this.currentIndex++; this.selectedAnswer = null; this.revealed = false; this.phase = 'playing';
-            this.startTimer();
+            this.imgLoaded = false;
+            this.$nextTick(() => {
+                this.currentIndex++;
+                this.selectedAnswer = null;
+                this.revealed = false;
+                this.phase = 'playing';
+                this.startTimer();
+            });
         },
 
         async finishGame() {
