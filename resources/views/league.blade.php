@@ -334,19 +334,23 @@
         <div x-show="current && current.question_type !== 'weight' && current.question_type !== 'size'" class="poke-stage">
             <img
                 :key="currentIndex"
-                :src="current ? current.artwork_url : ''"
+                :src="current && (current.question_type !== 'description' || revealed) ? current.artwork_url : ''"
                 :alt="shouldRevealName ? (current?.pokemon_name ?? '') : '???'"
                 :class="['poke-img', imgClass]"
                 :style="`opacity:${imgLoaded && (revealed || (current?.question_type !== 'description' && flashVisible)) ? 1 : 0}; ${imgFilter}`"
                 @@load="imgLoaded = true"
                 @@error="imgLoaded = true"
             >
+            <div x-show="current?.question_type === 'blur_reveal' && !revealed"
+                 style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--text-faint);letter-spacing:.08em;background:rgba(0,0,0,.55);padding:4px 10px;border-radius:6px;backdrop-filter:blur(4px);pointer-events:none">
+                ⏳ ESPERA — SE ESTÁ ENFOCANDO
+            </div>
             <div x-show="current?.question_type === 'flash' && !flashVisible"
                  style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg-card);border-radius:10px;font-size:40px;opacity:.5">
                 💡
             </div>
             <div x-show="current?.question_type === 'description' && !revealed"
-                 style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--text-muted);line-height:1.5;letter-spacing:.02em;text-align:center;padding:16px;overflow-y:auto;word-break:break-word">
+                 style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--text-muted);line-height:1.5;letter-spacing:.02em;text-align:center;padding:16px;overflow-y:auto;word-break:break-word;background:var(--bg-card);border-radius:10px">
                 <span x-text="current?.description ?? ''"></span>
             </div>
         </div>
