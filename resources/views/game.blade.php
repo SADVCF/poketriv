@@ -669,7 +669,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
             try {
                 const res = await fetch('/api/game/questions', {
                     method: 'POST',
-                    headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    headers: { 'Content-Type':'application/json', 'Accept':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
                     body: JSON.stringify({ difficulty: this.difficulty, max_generation: this.maxGen, question_count: this.questionCount }),
                 });
                 const data = await res.json();
@@ -751,7 +751,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
             try {
                 const res = await fetch('/api/game/score', {
                     method: 'POST',
-                    headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    headers: { 'Content-Type':'application/json', 'Accept':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
                     body: JSON.stringify({ player_name:this.playerName, score:this.score, correct_answers:this.correctCount, total_questions:this.questions.length, time_seconds:this.totalTime, difficulty:this.difficulty, max_generation:this.maxGen, max_streak:this.maxStreak, token:this.gameToken }),
                 });
                 const data = await res.json();

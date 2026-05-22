@@ -12,7 +12,7 @@ class LeagueScoreController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'player_name'     => 'required|string|max:50|regex:/^[a-zA-Z0-9\s\-\_\.\']+$/u',
+            'player_name'     => 'required|string|max:50|regex:/^[\p{L}0-9\s\-_\.\']+$/u',
             'score'           => 'required|integer|min:0|max:9999999',
             'correct_answers' => 'required|integer|min:0|max:40',
             'total_questions' => 'required|integer|min:1|max:40',
