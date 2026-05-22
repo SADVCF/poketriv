@@ -99,7 +99,7 @@ class FetchPokemon extends Command
                     'display_name' => $formatName($data['name']),
                     'types'        => array_map(fn($t) => $t['type']['name'], $data['types']),
                     'generation'   => $getGen($id),
-                    'artwork_url'  => "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{$id}.png",
+                    'artwork_url'  => "https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/{$id}.png",
                 ];
             } catch (\Exception $e) {
                 $this->error("\nFailed on #{$id}: {$e->getMessage()}");

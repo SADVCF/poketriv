@@ -77,7 +77,7 @@ class PokemonSeeder extends Seeder
                         'name'         => $data['name'],
                         'display_name' => $this->formatName($data['name'], $id),
                         'types'        => array_map(fn($t) => $t['type']['name'], $data['types']),
-                        'artwork_url'  => "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{$id}.png",
+                        'artwork_url'  => "https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/{$id}.png",
                     ]
                 );
             } catch (\Exception $e) {

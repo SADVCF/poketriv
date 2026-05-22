@@ -1021,6 +1021,8 @@ function leagueGame({ playerName }) {
                 this.questions  = data.questions;
                 this.gameToken  = data.token;
                 this.gameStartTime = Date.now();
+                // preload all images
+                this.questions.forEach(q => { new Image().src = q.artwork_url; if (q.artwork_url_b) new Image().src = q.artwork_url_b; });
                 this.imgLoaded  = false;
                 this.imgBLoaded = false;
                 this.phase = 'playing';
