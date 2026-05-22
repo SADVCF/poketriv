@@ -1162,8 +1162,9 @@ function leagueGame({ playerName }) {
                     }),
                 });
                 const data = await res.json();
+                if (!res.ok) { console.error('Score save failed:', data); return; }
                 this.rank = data.rank;
-            } catch(e) {}
+            } catch(e) { console.error('Score save error:', e); }
         },
 
         restartLeague() {
