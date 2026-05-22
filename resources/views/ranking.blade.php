@@ -25,7 +25,7 @@
                 $filterLabels = ['all' => ['Todos'], 'easy' => ['Fácil', $ballPoke], 'medium' => ['Medio', $ballGreat], 'hard' => ['Difícil', $ballUltra], 'league' => ['Liga', $swordIcon]];
             @endphp
             @foreach($filterLabels as $val => $item)
-                <a href="{{ route('ranking', ['difficulty' => $val, 'max_generation' => $maxGen]) }}"
+                <a href="{{ route('ranking', ['difficulty' => $val, 'max_generation' => $maxGen, 'page' => null]) }}"
                    class="filter-btn {{ $difficulty === $val ? 'filter-btn--on' : '' }}"
                 >
                     @if (count($item) > 1)<span class="filter-ball">{!! $item[1] !!}</span>@endif
@@ -52,7 +52,7 @@
             @endphp
 
             {{-- Todas las generaciones --}}
-            <a href="{{ route('ranking', ['difficulty' => $difficulty, 'max_generation' => 'all']) }}"
+            <a href="{{ route('ranking', ['difficulty' => $difficulty, 'max_generation' => 'all', 'page' => null]) }}"
                class="filter-btn filter-btn--gen {{ $maxGen === 'all' ? 'filter-btn--on-gen' : '' }}"
             >
                 <span class="gen-roman">Todas</span>
@@ -60,7 +60,7 @@
             </a>
 
             @foreach($gens as $num => $g)
-                <a href="{{ route('ranking', ['difficulty' => $difficulty, 'max_generation' => $num]) }}"
+                <a href="{{ route('ranking', ['difficulty' => $difficulty, 'max_generation' => $num, 'page' => null]) }}"
                    class="filter-btn filter-btn--gen {{ $maxGen === $num ? 'filter-btn--on-gen' : '' }}"
                    title="{{ $g['region'] }}"
                 >
@@ -235,11 +235,11 @@
             $last    = $scores->lastPage();
             $prev    = $current > 1 ? $current - 1 : null;
             $next    = $current < $last ? $current + 1 : null;
-            $qs      = array_merge(request()->query(), ['page' => null]);
+            $qs      = request()->except('page');
         @endphp
         <div class="pagination">
             @if($prev)
-                <a href="{{ route('ranking', $qs + ['page' => $prev]) }}" class="page-link page-prev">‹</a>
+                <a href="{{ route('ranking', array_merge($qs, ['page' => $prev])) }}" class="page-link page-prev">‹</a>
             @else
                 <span class="page-link page-disabled">‹</span>
             @endif
@@ -247,11 +247,11 @@
                 @if($i === $current)
                     <span class="page-link page-on">{{ $i }}</span>
                 @else
-                    <a href="{{ route('ranking', $qs + ['page' => $i]) }}" class="page-link">{{ $i }}</a>
+                    <a href="{{ route('ranking', array_merge($qs, ['page' => $i])) }}" class="page-link">{{ $i }}</a>
                 @endif
             @endfor
             @if($next)
-                <a href="{{ route('ranking', $qs + ['page' => $next]) }}" class="page-link page-next">›</a>
+                <a href="{{ route('ranking', array_merge($qs, ['page' => $next])) }}" class="page-link page-next">›</a>
             @else
                 <span class="page-link page-disabled">›</span>
             @endif
