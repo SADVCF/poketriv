@@ -125,8 +125,7 @@
         $trophyBronze = $trophySvg('#CD7F32', '#F5DEB3', '#8B4513');
     @endphp
 
-    @if($scores->count() >= 3)
-    @php $top3 = $scores->take(3); @endphp
+    @if($top3->count() >= 3)
     <div class="podium">
 
         {{-- 2nd --}}
@@ -188,13 +187,15 @@
                 </tr>
             </thead>
             <tbody>
+                @php $globalOffset = ($scores->currentPage() - 1) * $scores->perPage(); @endphp
                 @foreach($scores as $idx => $s)
-                <tr class="{{ $idx === 0 ? 'tr--gold' : ($idx === 1 ? 'tr--silver' : ($idx === 2 ? 'tr--bronze' : '')) }}">
+                @php $globalRank = $globalOffset + $idx + 1; @endphp
+                <tr class="{{ $globalRank === 1 ? 'tr--gold' : ($globalRank === 2 ? 'tr--silver' : ($globalRank === 3 ? 'tr--bronze' : '')) }}">
                     <td class="td-rank">
-                        @if($idx === 0)<span class="rank-num rank-num--1">1</span>
-                        @elseif($idx === 1)<span class="rank-num rank-num--2">2</span>
-                        @elseif($idx === 2)<span class="rank-num rank-num--3">3</span>
-                        @else<span class="rank-num">{{ $idx + 1 }}</span>
+                        @if($globalRank === 1)<span class="rank-num rank-num--1">1</span>
+                        @elseif($globalRank === 2)<span class="rank-num rank-num--2">2</span>
+                        @elseif($globalRank === 3)<span class="rank-num rank-num--3">3</span>
+                        @else<span class="rank-num">{{ $globalRank }}</span>
                         @endif
                     </td>
                     <td class="td-name">{{ $s->player_name }}</td>
@@ -223,6 +224,38 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+    @endif
+
+    {{-- ── PAGINATION ─────────────────────────────────────────────── --}}
+    @if($scores->hasPages())
+    <div class="pagination-wrap">
+        @php
+            $current = $scores->currentPage();
+            $last    = $scores->lastPage();
+            $prev    = $current > 1 ? $current - 1 : null;
+            $next    = $current < $last ? $current + 1 : null;
+            $qs      = array_merge(request()->query(), ['page' => null]);
+        @endphp
+        <div class="pagination">
+            @if($prev)
+                <a href="{{ route('ranking', $qs + ['page' => $prev]) }}" class="page-link page-prev">‹</a>
+            @else
+                <span class="page-link page-disabled">‹</span>
+            @endif
+            @for($i = 1; $i <= $last; $i++)
+                @if($i === $current)
+                    <span class="page-link page-on">{{ $i }}</span>
+                @else
+                    <a href="{{ route('ranking', $qs + ['page' => $i]) }}" class="page-link">{{ $i }}</a>
+                @endif
+            @endfor
+            @if($next)
+                <a href="{{ route('ranking', $qs + ['page' => $next]) }}" class="page-link page-next">›</a>
+            @else
+                <span class="page-link page-disabled">›</span>
+            @endif
+        </div>
     </div>
     @endif
 
@@ -396,6 +429,22 @@
     box-shadow: 0 4px 0 rgba(0,0,0,.3), 0 8px 28px rgba(255,203,5,.4);
 }
 .rank-cta-row { text-align: center; }
+
+/* ── Pagination ──────────────────────────────────────────────────── */
+.pagination-wrap { display: flex; justify-content: center; }
+.pagination { display: flex; gap: 4px; }
+.page-link {
+    display: flex; align-items: center; justify-content: center;
+    min-width: 36px; height: 36px; padding: 0 8px;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+    color: var(--text-muted); background: var(--surface-2);
+    border: 1px solid var(--border-mid); border-radius: 6px;
+    text-decoration: none; transition: all .12s;
+}
+.page-link:hover { border-color: var(--yellow); color: var(--yellow); }
+.page-on { background: var(--yellow); color: #06070d; border-color: var(--yellow); }
+.page-disabled { opacity: .3; pointer-events: none; }
+.page-prev, .page-next { font-size: 20px; line-height: 1; }
 
 /* ── Gen filter row ──────────────────────────────────────────────── */
 .filter-row--gen { margin-top: 6px; }
