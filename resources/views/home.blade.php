@@ -36,7 +36,22 @@
                 <template x-for="d in difficulties" :key="d.value">
                     <button type="button" @click="difficulty = d.value"
                         :class="['diff-btn', difficulty === d.value ? 'diff-btn--on diff-btn--' + d.value : '']">
-                        <span class="diff-icon" x-text="d.icon"></span>
+                        <span class="diff-icon" x-show="d.icon === 'pokeball'">
+                            <svg viewBox="0 0 16 16" width="18" height="18"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M1 8h14" stroke="currentColor" stroke-width="1.2"/><path d="M1 8a7 7 0 0 1 14 0" fill="currentColor" opacity="0.12"/><circle cx="8" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/></svg>
+                        </span>
+                        <span class="diff-icon" x-show="d.icon === 'greatball'">
+                            <svg viewBox="0 0 32 16" width="36" height="18">
+                                <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M1 8h14" stroke="currentColor" stroke-width="1.2"/><path d="M1 8a7 7 0 0 1 14 0" fill="currentColor" opacity="0.12"/><circle cx="8" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/>
+                                <circle cx="24" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M17 8h14" stroke="currentColor" stroke-width="1.2"/><path d="M17 8a7 7 0 0 1 14 0" fill="currentColor" opacity="0.12"/><circle cx="24" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="24" cy="8" r="1.2" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span class="diff-icon" x-show="d.icon === 'masterball'">
+                            <svg viewBox="0 0 48 16" width="52" height="18">
+                                <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M1 8h14" stroke="currentColor" stroke-width="1.2"/><path d="M1 8a7 7 0 0 1 14 0" fill="currentColor" opacity="0.12"/><circle cx="8" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/>
+                                <circle cx="24" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M17 8h14" stroke="currentColor" stroke-width="1.2"/><path d="M17 8a7 7 0 0 1 14 0" fill="currentColor" opacity="0.12"/><circle cx="24" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="24" cy="8" r="1.2" fill="currentColor"/>
+                                <circle cx="40" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M33 8h14" stroke="currentColor" stroke-width="1.2"/><path d="M33 8a7 7 0 0 1 14 0" fill="currentColor" opacity="0.12"/><circle cx="40" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="40" cy="8" r="1.2" fill="currentColor"/>
+                            </svg>
+                        </span>
                         <span class="diff-name" x-text="d.label"></span>
                         <span class="diff-sub" x-text="d.sub"></span>
                     </button>
@@ -184,9 +199,12 @@
 .diff-btn:hover { border-color: var(--border-hi); background: var(--surface-2); }
 .diff-btn--on   { background: var(--surface-2); }
 .diff-btn--easy.diff-btn--on   { border-color: #2ed573; box-shadow: 0 0 10px rgba(46,213,115,.15); }
+.diff-btn--easy.diff-btn--on .diff-icon { color: #2ed573; }
 .diff-btn--medium.diff-btn--on { border-color: var(--yellow); box-shadow: 0 0 10px rgba(255,203,5,.18); }
+.diff-btn--medium.diff-btn--on .diff-icon { color: var(--yellow); }
 .diff-btn--hard.diff-btn--on   { border-color: #ff4757; box-shadow: 0 0 10px rgba(255,71,87,.15); }
-.diff-icon { font-size: 20px; line-height: 1; }
+.diff-btn--hard.diff-btn--on .diff-icon { color: #ff4757; }
+.diff-icon { display:flex; align-items:center; justify-content:center; line-height:1; color:currentColor; }
 .diff-name { font-family: var(--font-display); font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--text); }
 .diff-sub  { font-family: var(--font-mono); font-size: 9px; color: var(--text-faint); }
 
@@ -284,9 +302,9 @@ function homeForm() {
         questionCount: 10,
 
         difficulties: [
-            { value:'easy',   label:'FÁCIL',   icon:'😊', sub:'Gen I' },
-            { value:'medium', label:'MEDIO',   icon:'🔥', sub:'Multi-Gen' },
-            { value:'hard',   label:'DIFÍCIL', icon:'💀', sub:'Silueta' },
+            { value:'easy',   label:'FÁCIL',   icon:'pokeball', sub:'Gen I' },
+            { value:'medium', label:'MEDIO',   icon:'greatball', sub:'Multi-Gen' },
+            { value:'hard',   label:'DIFÍCIL', icon:'masterball', sub:'Silueta' },
         ],
 
         generations: [

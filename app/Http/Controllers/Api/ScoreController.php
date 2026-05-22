@@ -35,14 +35,15 @@ class ScoreController extends Controller
             return response()->json(['error' => 'Invalid score data'], 403);
         }
 
-        $maxPossibleScore = $expectedCount * (100 + 120 + 475);
+        $maxGen = $validated['max_generation'] ?? 9;
+        $genMultiplier = 1 + ($maxGen - 1) * 0.15;
+        $maxPossibleScore = (int) ceil($expectedCount * (100 + 120 + 475) * $genMultiplier);
+
         if ($validated['score'] > $maxPossibleScore) {
             return response()->json(['error' => 'Score exceeds maximum possible'], 403);
         }
 
         Session::forget(['game_token', 'game_answers', 'game_count']);
-
-        $maxGen = $validated['max_generation'] ?? 9;
 
         $score = Score::create([
             'player_name'     => $validated['player_name'],

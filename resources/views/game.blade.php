@@ -144,7 +144,8 @@
         {{-- Points popup --}}
         <div x-show="pointsPopup.show" class="pts-popup">
             +<span x-text="pointsPopup.amount"></span>
-            <span x-show="pointsPopup.streakBonus > 0" style="font-size:16px;color:#ffda45;"> (+<span x-text="pointsPopup.streakBonus"></span>🔥)</span>
+            <span x-show="pointsPopup.streakBonus > 0" style="font-size:16px;color:#ffda45;"> (+<span x-text="pointsPopup.streakBonus"></span>)</span>
+            <span x-show="pointsPopup.genMult > 1" style="font-size:14px;color:#a78bfa;"> (×<span x-text="pointsPopup.genMult.toFixed(2)"></span>🌍)</span>
         </div>
 
         {{-- Card header: gen badge + type badges --}}
@@ -239,7 +240,8 @@
 
     <div class="result-diff-row">
         <span class="chip" x-text="{ easy:'😊 Fácil', medium:'🔥 Medio', hard:'💀 Difícil' }[difficulty]"></span>
-        <span x-show="maxStreak >= 3" class="chip chip--yellow">🔥 Racha máx. <span x-text="maxStreak"></span></span>
+        <span class="chip">🌍 Gen 1–<span x-text="maxGen"></span> (×<span x-text="genMultiplier.toFixed(2)"></span>)</span>
+        <span x-show="maxStreak >= 3" class="chip chip--yellow">🔥 Racha <span x-text="maxStreak"></span></span>
     </div>
 
     <div class="result-actions">
@@ -565,6 +567,9 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
             const p = this.questions.length > 0 ? this.correctCount / this.questions.length : 0;
             return p >= .9 ? '¡Maestro Pokémon!' : p >= .7 ? '¡Muy bien!' : p >= .5 ? 'Nada mal' : 'Necesitas entrenar más';
         },
+        get genMultiplier() {
+            return 1 + (this.maxGen - 1) * 0.15;
+        },
 
         async init() { await this.loadQuestions(); },
 
@@ -611,11 +616,12 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
                 this.streak++;
                 if (this.streak > this.maxStreak) this.maxStreak = this.streak;
                 const tb = Math.floor(this.timeLeft * 10), sb = Math.max(0, this.streak - 1) * 25;
-                const gained = 100 + tb + sb;
+                const base = 100 + tb + sb;
+                const gained = Math.round(base * this.genMultiplier);
                 this.score += gained; this.correctCount++;
                 this.phase = 'correct';
                 this.triggerScoreFlash();
-                this.pointsPopup = { show: true, amount: gained, streakBonus: sb };
+                this.pointsPopup = { show: true, amount: gained, streakBonus: sb, genMult: this.genMultiplier };
                 setTimeout(() => { this.pointsPopup.show = false; }, 950);
                 playSound('correct');
             } else {
