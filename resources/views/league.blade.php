@@ -1063,6 +1063,7 @@ function leagueGame({ playerName }) {
         selectAnswer(option) {
             if (this.selectedAnswer !== null) return;
             clearInterval(this.timerInterval);
+            clearTimeout(this._imgTimer);
             this.selectedAnswer = option;
             this.revealed = true;
             this.imgLoaded = true;
@@ -1104,6 +1105,7 @@ function leagueGame({ playerName }) {
             if (this.selectedAnswer !== null) return;
             this.selectedAnswer = '__timeout__';
             this.revealed = true;
+            clearTimeout(this._imgTimer);
             this.imgLoaded = true;
             this.streak = 0;
             if (this.current && this.current.stage > this.maxStageReached) this.maxStageReached = this.current.stage;
@@ -1142,6 +1144,8 @@ function leagueGame({ playerName }) {
                 this.finishGame(); return;
             }
             this.imgLoaded      = false;
+            clearTimeout(this._imgTimer);
+            this._imgTimer = setTimeout(() => { this.imgLoaded = true; }, 4000);
             this.imgBLoaded     = false;
             this.hiddenOptions  = [];
             this.typeRevealed   = false;

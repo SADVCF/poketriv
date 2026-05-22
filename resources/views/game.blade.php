@@ -701,6 +701,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         selectAnswer(option) {
             if (this.selectedAnswer !== null) return;
             clearInterval(this.timerInterval);
+            clearTimeout(this._imgTimer);
             this.selectedAnswer = option;
             this.revealed = true;
             this.imgLoaded = true;
@@ -728,6 +729,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
             if (this.selectedAnswer !== null) return;
             this.selectedAnswer = '__timeout__'; this.streak = 0;
             this.revealed = true; this.phase = 'wrong';
+            clearTimeout(this._imgTimer);
             this.imgLoaded = true;
             playSound('timeout');
             setTimeout(() => this.nextQuestion(), 1600);
@@ -736,6 +738,8 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         nextQuestion() {
             if (this.currentIndex >= this.questions.length - 1) { this.finishGame(); return; }
             this.imgLoaded = false;
+            clearTimeout(this._imgTimer);
+            this._imgTimer = setTimeout(() => { this.imgLoaded = true; }, 4000);
             this.$nextTick(() => {
                 this.currentIndex++;
                 this.selectedAnswer = null;
