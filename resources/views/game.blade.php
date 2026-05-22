@@ -60,7 +60,6 @@
 
 /* question slide animation */
 .q-enter { animation:slide-right .3s ease-out; }
-</style>
 
 /* Descripción Pokémon */
 .poke-desc-row {
@@ -82,6 +81,7 @@
     padding: 10px 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
+</style>
 @endpush
 
 @section('content')
