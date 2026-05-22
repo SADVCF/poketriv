@@ -45,7 +45,7 @@
         </div>
 
         {{-- Generation selector --}}
-        <div class="form-field">
+        <div class="form-field" x-show="difficulty !== 'league'">
             <div class="form-label-row">
                 <label class="form-label" style="margin:0">HASTA GEN</label>
                 <span class="gen-info-badge" x-text="genInfo"></span>
@@ -63,7 +63,7 @@
         </div>
 
         {{-- Question count --}}
-        <div class="form-field">
+        <div class="form-field" x-show="difficulty !== 'league'">
             <div class="form-label-row">
                 <label class="form-label" style="margin:0">PREGUNTAS</label>
                 <span class="form-label" style="margin:0;color:var(--yellow)" x-text="questionCount"></span>
@@ -80,6 +80,15 @@
 
         {{-- Info strip --}}
         <div class="info-strip">
+            <template x-if="difficulty === 'league'">
+                <div class="info-strip-inner">
+                    <span class="chip chip--gold">40 preguntas</span>
+                    <span class="chip chip--gold">3 vidas ❤️</span>
+                    <span class="chip chip--gold">Dificultad progresiva</span>
+                    <span class="chip chip--gold">Tipos variados</span>
+                    <span class="chip chip--gold">¡Comodines!</span>
+                </div>
+            </template>
             <template x-if="difficulty === 'easy'">
                 <div class="info-strip-inner">
                     <span class="chip chip--green">Hasta Gen <span x-text="maxGen"></span></span>
@@ -108,7 +117,8 @@
 
         {{-- CTA --}}
         <button type="button" @click="startGame()" :disabled="!playerName.trim()" class="start-btn">
-            EMPEZAR
+            <span x-show="difficulty !== 'league'">EMPEZAR</span>
+            <span x-show="difficulty === 'league'">⚔️ ENTRAR EN LA LIGA</span>
         </button>
         <a href="{{ route('ranking') }}" class="ranking-cta">Ver ranking global →</a>
     </div>
@@ -174,24 +184,28 @@
 .form-input:focus { border-bottom-color: var(--yellow); }
 
 /* ── Difficulty ────────────────────────────────────────────────────── */
-.diff-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.diff-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
 .diff-btn {
     background: var(--bg); border: 2px solid var(--border);
-    border-radius: 10px; padding: 12px 6px 10px;
+    border-radius: 10px; padding: 10px 4px 8px;
     cursor: pointer; transition: all .15s;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
 }
 .diff-btn:hover { border-color: var(--border-hi); background: var(--surface-2); }
 .diff-btn--on   { background: var(--surface-2); }
 .diff-btn--easy.diff-btn--on   { border-color: #2ed573; box-shadow: 0 0 10px rgba(46,213,115,.15); }
 .diff-btn--medium.diff-btn--on { border-color: var(--yellow); box-shadow: 0 0 10px rgba(255,203,5,.18); }
 .diff-btn--hard.diff-btn--on   { border-color: #ff4757; box-shadow: 0 0 10px rgba(255,71,87,.15); }
+.diff-btn--league.diff-btn--on { border-color: var(--yellow); box-shadow: 0 0 14px rgba(255,203,5,.35); background: rgba(255,203,5,.08); }
 .diff-icon { display:flex; align-items:center; justify-content:center; line-height:1; }
 .diff-btn--easy.diff-btn--on .diff-icon { color: #2ed573; }
 .diff-btn--medium.diff-btn--on .diff-icon { color: var(--yellow); }
 .diff-btn--hard.diff-btn--on .diff-icon { color: #ff4757; }
-.diff-name { font-family: var(--font-display); font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--text); }
-.diff-sub  { font-family: var(--font-mono); font-size: 9px; color: var(--text-faint); }
+.diff-btn--league.diff-btn--on .diff-icon { color: var(--yellow); filter: drop-shadow(0 0 6px rgba(255,203,5,.6)); }
+.diff-name { font-family: var(--font-display); font-weight: 800; font-size: 12px; letter-spacing: .04em; color: var(--text); }
+.diff-sub  { font-family: var(--font-mono); font-size: 8px; color: var(--text-faint); }
+.diff-btn--league.diff-btn--on .diff-name { color: var(--yellow); }
+.diff-btn--league.diff-btn--on .diff-sub { color: var(--yellow); opacity: .8; }
 
 /* ── Generation selector ───────────────────────────────────────────── */
 .gen-info-badge {
@@ -255,6 +269,7 @@
 .chip--green  { background:rgba(46,213,115,.1); border-color:rgba(46,213,115,.3); color:#2ed573; }
 .chip--yellow { background:rgba(255,203,5,.1); border-color:rgba(255,203,5,.3); color:var(--yellow); }
 .chip--red    { background:rgba(255,71,87,.1); border-color:rgba(255,71,87,.3); color:#ff4757; }
+.chip--gold   { background:rgba(255,203,5,.12); border-color:rgba(255,203,5,.35); color:var(--yellow); }
 
 /* ── CTA ───────────────────────────────────────────────────────────── */
 .start-btn {
@@ -274,6 +289,7 @@
     font-family: var(--font-mono); font-size: 11px;
     color: var(--text-faint); text-decoration: none;
     letter-spacing: .05em; transition: color .15s;
+    margin-bottom: 16px;
 }
 .ranking-cta:hover { color: var(--text-muted); }
 </style>
@@ -293,6 +309,8 @@ function homeForm() {
               iconHtml:'<svg viewBox="0 0 18 18" width="18" height="18"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#1565C0"/><path d="M7 9h4" transform="rotate(180 9 9)" fill="none" stroke="#C62828" stroke-width="1.8"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/><path d="M6 5a2 2 0 0 1 1.5-.6" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" stroke-linecap="round"/></svg>' },
             { value:'hard',   label:'DIFÍCIL', sub:'6s · 6 opc · 🌑',
               iconHtml:'<svg viewBox="0 0 18 18" width="18" height="18"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#222"/><path d="M5 7.5h8M7 9h4M5 10.5h6" stroke="#FFD600" stroke-width="1.2" stroke-linecap="round"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/><path d="M6 5a2 2 0 0 1 1.5-.6" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" stroke-linecap="round"/></svg>' },
+            { value:'league', label:'LIGA',    sub:'¡Modo Aventura!',
+              iconHtml:'<svg viewBox="0 0 20 20" width="20" height="20"><path d="M3 3l10 14M17 3L7 17" stroke="#ffcb05" stroke-width="1.8" stroke-linecap="round"/><path d="M6 14h3M11 14h3" stroke="#ffcb05" stroke-width="1.4" stroke-linecap="round"/><path d="M3 3h.01M17 3h.01M13 17h.01M7 17h.01" stroke="#ffcb05" stroke-width="2.5" stroke-linecap="round"/></svg>' },
         ],
 
         generations: [
@@ -320,6 +338,10 @@ function homeForm() {
 
         startGame() {
             if (!this.playerName.trim()) return;
+            if (this.difficulty === 'league') {
+                window.location.href = `/league?player=${encodeURIComponent(this.playerName.trim())}`;
+                return;
+            }
             const p = new URLSearchParams({
                 player:         this.playerName.trim(),
                 difficulty:     this.difficulty,
@@ -327,7 +349,7 @@ function homeForm() {
                 question_count: this.questionCount,
             });
             window.location.href = `/game?${p}`;
-        }
+        },
     }
 }
 </script>

@@ -20,8 +20,9 @@
                 $ballPoke = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#ee1515"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
                 $ballGreat = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#1565C0"/><path d="M7 9h4" transform="rotate(180 9 9)" fill="none" stroke="#C62828" stroke-width="1.8"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
                 $ballUltra = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#222"/><path d="M5 7.5h8M7 9h4M5 10.5h6" stroke="#FFD600" stroke-width="1.2" stroke-linecap="round"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
-                $ballMap = ['easy' => $ballPoke, 'medium' => $ballGreat, 'hard' => $ballUltra];
-                $filterLabels = ['all' => ['Todos'], 'easy' => ['Fácil', $ballPoke], 'medium' => ['Medio', $ballGreat], 'hard' => ['Difícil', $ballUltra]];
+                $swordIcon = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M3 3l9 12M15 3L7 15" stroke="#ffcb05" stroke-width="2" stroke-linecap="round"/><path d="M5 12h3M10 12h3" stroke="#ffcb05" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3h.01M15 3h.01M12 15h.01M6 15h.01" stroke="#ffcb05" stroke-width="2.5" stroke-linecap="round"/></svg>';
+                $ballMap = ['easy' => $ballPoke, 'medium' => $ballGreat, 'hard' => $ballUltra, 'league' => $swordIcon];
+                $filterLabels = ['all' => ['Todos'], 'easy' => ['Fácil', $ballPoke], 'medium' => ['Medio', $ballGreat], 'hard' => ['Difícil', $ballUltra], 'league' => ['Liga', $swordIcon]];
             @endphp
             @foreach($filterLabels as $val => $item)
                 <a href="{{ route('ranking', ['difficulty' => $val, 'max_generation' => $maxGen]) }}"
@@ -33,7 +34,8 @@
             @endforeach
         </div>
 
-        {{-- Generation ─ "hasta Gen X" --}}
+        {{-- Generation ─ "hasta Gen X" (oculto en Liga) --}}
+        @if($difficulty !== 'league')
         <div class="filter-row filter-row--gen">
             @php
                 $gens = [
@@ -67,16 +69,33 @@
                 </a>
             @endforeach
         </div>
+        @endif
 
     </div>
 
-    {{-- Empty state --}}
+    {{-- ── EMPTY STATE ───────────────────────────────────────────────── --}}
     @if($scores->isEmpty())
     <div class="empty-state">
-        <div style="font-size:56px;margin-bottom:16px;">🎮</div>
-        <p style="font-family:var(--font-display);font-size:24px;font-weight:800;margin-bottom:6px;">Sin puntuaciones aún</p>
-        <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px;">Sé el primero en aparecer aquí</p>
-        <a href="{{ route('home') }}" class="btn-yellow-sm">Jugar ahora</a>
+        <div style="font-size:56px;margin-bottom:16px;">
+            @if($difficulty === 'league')⚔️
+            @else🎮
+            @endif
+        </div>
+        <p style="font-family:var(--font-display);font-size:24px;font-weight:800;margin-bottom:6px;">
+            @if($difficulty === 'league')Sin entrenadores aún
+            @elseSin puntuaciones aún
+            @endif
+        </p>
+        <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px;">
+            @if($difficulty === 'league')Supera la Liga para aparecer aquí
+            @elseSé el primero en aparecer aquí
+            @endif
+        </p>
+        @if($difficulty === 'league')
+            <a href="{{ route('league') }}" class="btn-yellow-sm">Entrar a la Liga</a>
+        @else
+            <a href="{{ route('home') }}" class="btn-yellow-sm">Jugar ahora</a>
+        @endif
     </div>
 
     @else
@@ -84,21 +103,15 @@
     {{-- ── TOP 3 PODIUM ─────────────────────────────────────────── --}}
     @php
         $trophySvg = fn($color, $light, $dark) => '<svg viewBox="0 0 28 32" width="32" height="36" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))">'
-            .'<!-- handles -->'
             .'<path d="M5 9C1 9 1 14 5 14" fill="none" stroke="'.$color.'" stroke-width="2.5" stroke-linecap="round"/>'
             .'<path d="M23 9C27 9 27 14 23 14" fill="none" stroke="'.$color.'" stroke-width="2.5" stroke-linecap="round"/>'
-            .'<!-- cup bowl -->'
             .'<path d="M4 6C4 1 24 1 24 6L23 14Q14 17 5 14Z" fill="'.$color.'" stroke="'.$dark.'" stroke-width="0.8"/>'
-            .'<!-- pokeball emblem on cup -->'
             .'<circle cx="14" cy="8" r="3.5" fill="#f5f5f5" stroke="'.$dark.'" stroke-width="0.5"/>'
             .'<path d="M10.5 8a3.5 3.5 0 0 1 7 0" fill="'.$dark.'" opacity="0.5"/>'
             .'<path d="M10.5 8h7" stroke="'.$dark.'" stroke-width="0.5"/>'
             .'<circle cx="14" cy="8" r="1" fill="#f5f5f5" stroke="'.$dark.'" stroke-width="0.4"/>'
-            .'<!-- stem -->'
             .'<rect x="11.5" y="15" width="5" height="6" fill="'.$color.'" stroke="'.$dark.'" stroke-width="0.8"/>'
-            .'<!-- base -->'
             .'<rect x="8" y="21" width="12" height="3" rx="1" fill="'.$color.'" stroke="'.$dark.'" stroke-width="0.8"/>'
-            .'<!-- highlight -->'
             .'<path d="M8 4a6 6 0 0 1 4-1" fill="none" stroke="'.$light.'" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>'
             .'</svg>';
         $trophyGold   = $trophySvg('#FFD700', '#FFF8DC', '#B8860B');
@@ -394,5 +407,15 @@
     box-shadow: 0 0 14px rgba(255,203,5,.25);
 }
 .filter-btn--on-gen .gen-region-sm { color:rgba(255,203,5,.6); }
+
+/* ── Stage badge ─────────────────────────────────────────────────── */
+.stage-badge {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 4px; border: 1px solid;
+    white-space: nowrap;
+}
+
+/* ── Hearts ──────────────────────────────────────────────────────── */
+.hearts-display { font-size: 12px; display: inline-flex; gap: 2px; }
 </style>
 @endsection

@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "mcp__Claude_in_Chrome__tabs_context_mcp"
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(Get-ChildItem -Path C:\\\\laragon\\\\www\\\\poketriv -Recurse -Directory)",
+      "Bash(Select-Object FullName)",
+      "Bash(php artisan *)",
+      "Bash(php -l app/Http/Controllers/Api/LeagueQuestionController.php)",
+      "Bash(php -l app/Http/Controllers/Api/LeagueScoreController.php)",
+      "Bash(php -l app/Http/Controllers/LeagueController.php)",
+      "Bash(php -l app/Models/LeagueScore.php)",
+      "Bash(del \"C:\\\\laragon\\\\www\\\\poketriv\\\\public\\\\preview-icons.html\")",
+      "PowerShell(Remove-Item \"C:\\\\laragon\\\\www\\\\poketriv\\\\public\\\\preview-icons.html\" -Confirm:$false)"
     ]
   }
 }
