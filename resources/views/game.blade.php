@@ -154,7 +154,7 @@
     </div>
 
     {{-- Battle card --}}
-    <div class="battle-card">
+    <div class="battle-card" :style="typeAccentStyle">
         {{-- Corner HUD markers --}}
         <div class="corner corner-tl"></div>
         <div class="corner corner-tr"></div>
