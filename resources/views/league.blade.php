@@ -904,12 +904,12 @@ function leagueGame({ playerName }) {
             if (!this.current || this.revealed) return '';
             const qt = this.current.question_type;
             if (qt === 'pixelated') {
-                const t = this.current.time_limit;
+                const t = this.current.time_limit ?? 10;
                 const blur = Math.max(0, (this.timeLeft / t) * 18);
                 return `filter: blur(${blur.toFixed(1)}px) drop-shadow(0 4px 24px rgba(0,0,0,.5))`;
             }
             if (qt === 'blur_reveal') {
-                const t = this.current.time_limit;
+                const t = this.current.time_limit ?? 10;
                 const blur = Math.max(0, (this.timeLeft / t) * 20);
                 return `filter: blur(${blur.toFixed(1)}px) drop-shadow(0 4px 24px rgba(0,0,0,.5))`;
             }

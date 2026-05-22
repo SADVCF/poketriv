@@ -262,7 +262,7 @@
 
     <div class="result-diff-row">
         <span class="chip" style="display:inline-flex;align-items:center;gap:5px" x-html="difficultyBadge"></span>
-        <span class="chip">🌍 Gen 1–<span x-text="maxGen"></span> (×<span x-text="genMultiplier.toFixed(2)"></span>)</span>
+        <span class="chip">🌍 Gen 1–<span x-text="maxGen"></span> (×<span x-text="(genMultiplier ?? 1).toFixed(2)"></span>)</span>
         <span x-show="maxStreak >= 3" class="chip chip--yellow">🔥 Racha <span x-text="maxStreak"></span></span>
     </div>
 
@@ -569,7 +569,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         gameToken: '', errorMsg: '',
         timeLeft: timePerQuestion, timerInterval: null, timerStart: 0,
         gameStartTime: null, totalTime: 0,
-        pointsPopup: { show: false, amount: 0, streakBonus: 0 },
+        pointsPopup: { show: false, amount: 0, streakBonus: 0, genMult: 1 },
         imgLoaded: false,
 
         get current()     { return this.questions[this.currentIndex] ?? null; },
