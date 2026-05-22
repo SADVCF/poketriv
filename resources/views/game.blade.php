@@ -178,25 +178,22 @@
             <span class="poke-desc" x-text="current && current.description ? current.description : ''"></span>
         </div>
 
-        {{-- Pokemon image y nombre solo si está revelado --}}
-        <template x-if="revealed">
-            <div>
-                <div class="poke-stage">
-                    <img
-                        :key="currentIndex"
-                        :src="current ? current.artwork_url : ''"
-                        :alt="current ? current.answer : ''"
-                        class="poke-img poke-reveal"
-                        :style="`opacity:${imgLoaded ? 1 : 0}`"
-                        @@load="imgLoaded = true"
-                        @@error="imgLoaded = true"
-                    >
-                </div>
-                <div class="poke-name-row">
-                    <span class="poke-name" x-text="current ? current.answer : ''"></span>
-                </div>
-            </div>
-        </template>
+        {{-- Pokemon image --}}
+        <div class="poke-stage">
+            <img
+                :key="currentIndex"
+                :src="current ? current.artwork_url : ''"
+                :alt="current ? current.answer : ''"
+                :class="['poke-img', revealed ? 'poke-reveal' : 'poke-silhouette']"
+                :style="`opacity:${imgLoaded ? 1 : 0}`"
+                @@load="imgLoaded = true"
+                @@error="imgLoaded = true"
+            >
+        </div>
+        <div class="poke-name-row">
+            <span x-show="revealed" class="poke-name" x-text="current ? current.answer : ''"></span>
+            <span x-show="!revealed" class="poke-unknown">? ? ?</span>
+        </div>
 
         {{-- HP bar timer ── the signature element --}}
         <div class="hp-bar-section">
