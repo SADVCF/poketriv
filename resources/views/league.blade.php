@@ -296,13 +296,16 @@
         {{-- Card header: gen + types (hide types for silhouette/pixelated) --}}
         <div class="card-header">
             <span class="gen-pill" x-show="current" x-text="'GEN ' + (current?.generation ?? '?')"></span>
-            <div class="type-row"
-                 x-show="current && (revealed || typeRevealed) && (current.question_type === 'silhouette' || current.question_type === 'pixelated')">
-                <template x-for="t in (current?.types ?? [])" :key="t">
-                    <span class="type-badge" :class="`type-${t}`" x-text="t"></span>
-                </template>
-            </div>
-            <div class="type-row"
+             <div class="type-row"
+                  x-show="current && (revealed || typeRevealed)">
+
+                 <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-faint);letter-spacing:.1em;margin-right:2px">TIPO</span>
+                 <template x-for="t in (current ? current.types : [])" :key="t">
+                     <span class="type-badge" :class="`type-${t}`" x-text="t"></span>
+                 </template>
+             </div>
+
+             <div class="type-row"
                  x-show="current && current.question_type !== 'silhouette' && current.question_type !== 'pixelated'">
                 <template x-for="t in (current?.types ?? [])" :key="t">
                     <span class="type-badge" :class="`type-${t}`" x-text="t"></span>
@@ -406,15 +409,16 @@
         <template x-for="wc in wildcardInventory" :key="wc.id">
             <button
                 @click="useWildcard(wc.id)"
-                :disabled="selectedAnswer !== null || wc.id === 'shield'"
+                :disabled="selectedAnswer !== null || (wc.id === 'shield' && shieldActive)"
                 :title="wc.name + ': ' + wc.desc"
-                :style="`border:1.5px solid ${wc.color}60;background:${wc.color}12;color:${wc.color};`"
+                :style="`border:1.5px solid ${wc.color}60;background:${wc.color}12;color:${wc.color};${wc.id === 'shield' && !shieldActive ? 'opacity:.5' : ''}`"
                 style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:var(--font-mono);font-size:11px;font-weight:700;transition:all .12s;letter-spacing:.03em"
                 :class="selectedAnswer !== null && wc.id !== 'shield' ? 'op-50' : ''"
             >
                 <span x-text="wc.icon" style="font-size:16px;line-height:1"></span>
                 <span x-text="wc.name"></span>
-                <span x-show="wc.id === 'shield'" style="font-size:9px;opacity:.7"> ACTIVO</span>
+                <span x-show="wc.id === 'shield' && shieldActive" style="font-size:9px;opacity:.7"> ACTIVO</span>
+                <span x-show="wc.id === 'shield' && !shieldActive" style="font-size:9px;opacity:.5"> (click para activar)</span>
             </button>
         </template>
     </div>
@@ -477,6 +481,10 @@
             </div>
             <div class="stat-lbl">Posición Liga</div>
         </div>
+        <div class="stat-card" x-show="saveError">
+            <div class="stat-val" style="color:#ff4757;font-size:11px" x-text="saveError"></div>
+            <div class="stat-lbl">Error al guardar</div>
+        </div>
     </div>
     <div class="result-actions">
         <button @click="restartLeague()" class="btn-yellow">Intentar de nuevo</button>
@@ -522,6 +530,10 @@
                 <span style="font-size:18px;opacity:.4">#</span><span x-text="rank ?? '—'"></span>
             </div>
             <div class="stat-lbl">Posición Liga</div>
+        </div>
+        <div class="stat-card" x-show="saveError">
+            <div class="stat-val" style="color:#ff4757;font-size:11px" x-text="saveError"></div>
+            <div class="stat-lbl">Error al guardar</div>
         </div>
     </div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
@@ -836,6 +848,7 @@ function leagueGame({ playerName }) {
         scoreFlash: false,
         rank: null,
         scoreSaved: false,
+        saveError: null,
         gameToken: '',
         errorMsg: '',
         timeLeft: 15,
@@ -1162,9 +1175,16 @@ function leagueGame({ playerName }) {
                     }),
                 });
                 const data = await res.json();
-                if (!res.ok) { console.error('Score save failed:', data); return; }
+                console.log('Score response:', res.status, data);
+                if (!res.ok) {
+                    this.saveError = (res.status + ' ' + (data.error || data.message || 'error'));
+                    return;
+                }
                 this.rank = data.rank;
-            } catch(e) { console.error('Score save error:', e); }
+            } catch(e) {
+                console.error('Score save error:', e);
+                this.saveError = e.message || 'Error de conexión';
+            }
         },
 
         restartLeague() {
@@ -1204,7 +1224,12 @@ function leagueGame({ playerName }) {
 
         selectWildcard(wc) {
             this.wildcardChoiceActive = false;
-            if (this.wildcardInventory.length < 3) {
+            if (wc.id === 'shield') {
+                this.shieldActive = true;
+                if (this.wildcardInventory.length < 3) {
+                    this.wildcardInventory.push({...wc});
+                }
+            } else if (this.wildcardInventory.length < 3) {
                 this.wildcardInventory.push(wc);
             }
             this.nextQuestion();
@@ -1232,7 +1257,7 @@ function leagueGame({ playerName }) {
                     break;
                 case 'shield':
                     this.shieldActive = true;
-                    this.wildcardInventory.push(wc); // goes back as passive indicator
+                    this.wildcardInventory.push({...wc});
                     break;
                 case 'stats_hint': {
                     const q = this.current;

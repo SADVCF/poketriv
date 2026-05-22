@@ -213,17 +213,19 @@ class LeagueQuestionController extends Controller
 
         $correct = $candidates->shuffle()->first();
 
-        // Fill rest with random pokemon that do NOT have advantage
+        // Fill rest with pokemon that do NOT have advantage
         $losers = $pool->filter(function ($candidate) use ($defenderTypes, $pokemon, $correct) {
             if ($candidate->id === $pokemon->id || $candidate->id === $correct->id) return false;
             return !$this->hasTypeAdvantage($candidate->types, $defenderTypes);
         })->shuffle()->take($optionCount - 1);
 
         if ($losers->count() < $optionCount - 1) {
-            // Not enough losers, pad with any other pokemon
-            $others = $pool->filter(fn($c) => $c->id !== $pokemon->id && $c->id !== $correct->id)
-                ->shuffle()->take($optionCount - 1);
-            $losers = $others;
+            // fallback to silhouette if not enough non-advantage options
+            $allNames = $pool->pluck('display_name', 'id');
+            return $this->buildSilhouette(
+                array_merge($base, ['question_type' => 'silhouette']),
+                $pokemon, $stage, $allNames
+            );
         }
 
         $options = $losers->pluck('display_name')
@@ -233,7 +235,7 @@ class LeagueQuestionController extends Controller
             ->toArray();
 
         return array_merge($base, [
-            'question_text' => "¿Cuál de estos Pokémon le gana a {$pokemon->display_name}?",
+            'question_text' => "¿Quién vence a {$pokemon->display_name}?",
             'answer'        => $correct->display_name,
             'options'       => $options,
             'reveal_name'   => true,

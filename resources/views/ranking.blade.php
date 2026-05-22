@@ -98,7 +98,7 @@
             @endif
         </p>
         @if($difficulty === 'league')
-            <a href="{{ route('league') }}" class="btn-yellow-sm">Entrar a la Liga</a>
+            <a href="{{ route('home') }}" class="btn-yellow-sm">Jugar ahora</a>
         @else
             <a href="{{ route('home') }}" class="btn-yellow-sm">Jugar ahora</a>
         @endif
