@@ -174,8 +174,8 @@
         </div>
 
         {{-- Descripción del Pokémon (solo mostrar antes de revelar) --}}
-        <div class="poke-desc-row" x-show="!revealed">
-            <span class="poke-desc" x-text="current && current.description ? current.description : ''"></span>
+        <div class="poke-desc-row" x-show="!revealed && current && current.description">
+            <span class="poke-desc" x-text="current.description"></span>
         </div>
 
         {{-- Pokemon image --}}
