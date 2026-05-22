@@ -343,7 +343,7 @@
             >
             <div x-show="current?.question_type === 'blur_reveal' && !revealed"
                  style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--text-faint);letter-spacing:.08em;background:rgba(0,0,0,.55);padding:4px 10px;border-radius:6px;backdrop-filter:blur(4px);pointer-events:none">
-                ⏳ se enfoca al esperar (menos puntos si respondes ya)
+                ⏳ se enfoca al esperar — más puntos si arriesgas pronto
             </div>
             <div x-show="current?.question_type === 'flash' && !flashVisible"
                  style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg-card);border-radius:10px;font-size:40px;opacity:.5">
