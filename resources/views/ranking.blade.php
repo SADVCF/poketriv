@@ -77,18 +77,24 @@
     @if($scores->isEmpty())
     <div class="empty-state">
         <div style="font-size:56px;margin-bottom:16px;">
-            @if($difficulty === 'league')⚔️
-            @else🎮
+            @if($difficulty === 'league')
+            ⚔️
+            @else
+            🎮
             @endif
         </div>
         <p style="font-family:var(--font-display);font-size:24px;font-weight:800;margin-bottom:6px;">
-            @if($difficulty === 'league')Sin entrenadores aún
-            @elseSin puntuaciones aún
+            @if($difficulty === 'league')
+            Sin entrenadores aún
+            @else
+            Sin puntuaciones aún
             @endif
         </p>
         <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px;">
-            @if($difficulty === 'league')Supera la Liga para aparecer aquí
-            @elseSé el primero en aparecer aquí
+            @if($difficulty === 'league')
+            Supera la Liga para aparecer aquí
+            @else
+            Sé el primero en aparecer aquí
             @endif
         </p>
         @if($difficulty === 'league')
