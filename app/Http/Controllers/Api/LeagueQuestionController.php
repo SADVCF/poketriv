@@ -139,6 +139,14 @@ class LeagueQuestionController extends Controller
             'time_limit'    => $stage['timeLimit'],
             'stage'         => $stageNum,
             'reveal_name'   => false,
+            'hp'            => $pokemon->hp,
+            'attack'        => $pokemon->attack,
+            'defense'       => $pokemon->defense,
+            'sp_atk'        => $pokemon->sp_atk,
+            'sp_def'        => $pokemon->sp_def,
+            'speed'         => $pokemon->speed,
+            'weight'        => $pokemon->weight,
+            'height'        => $pokemon->height,
         ];
 
         return match ($qType) {

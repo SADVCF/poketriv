@@ -1174,12 +1174,15 @@ function leagueGame({ playerName }) {
                         token:           this.gameToken,
                     }),
                 });
-                const data = await res.json();
-                console.log('Score response:', res.status, data);
+                console.log('Score status:', res.status);
                 if (!res.ok) {
-                    this.saveError = (res.status + ' ' + (data.error || data.message || 'error'));
+                    const text = await res.text();
+                    console.error('Score error body:', text.slice(0, 300));
+                    this.saveError = `HTTP ${res.status}`;
                     return;
                 }
+                const data = await res.json();
+                console.log('Score data:', data);
                 this.rank = data.rank;
             } catch(e) {
                 console.error('Score save error:', e);
@@ -1262,9 +1265,29 @@ function leagueGame({ playerName }) {
                 case 'stats_hint': {
                     const q = this.current;
                     if (q) {
-                        const parts = [`Generación ${q.generation}`];
-                        if (q.types?.length) parts.push(`Tipo: ${q.types.join(' / ')}`);
-                        this.statsHintText = parts[Math.floor(Math.random() * parts.length)];
+                        const hints = [];
+                        if (q.height) hints.push(`📏 ${q.height}m`);
+                        if (q.weight) hints.push(`⚖️ ${q.weight}kg`);
+                        const statLabels = {hp:'HP',attack:'Ataque',defense:'Defensa',sp_atk:'At.Esp',sp_def:'Def.Esp',speed:'Vel'};
+                        let bestStat = '', bestVal = -1, worstStat = '', worstVal = 9999;
+                        for (const [k,label] of Object.entries(statLabels)) {
+                            if (q[k] != null) {
+                                if (q[k] > bestVal) { bestVal = q[k]; bestStat = label; }
+                                if (q[k] < worstVal) { worstVal = q[k]; worstStat = label; }
+                            }
+                        }
+                        if (bestStat) hints.push(`⭐ Mejor stat: ${bestStat} (${bestVal})`);
+                        if (worstStat) hints.push(`💤 Peor stat: ${worstStat} (${worstVal})`);
+                        const total = ['hp','attack','defense','sp_atk','sp_def','speed'].reduce((s,k) => s + (q[k]||0), 0);
+                        if (total > 0) hints.push(`📊 BST: ${total}`);
+                        // comparative
+                        if (q.speed != null && q.attack != null) {
+                            hints.push(q.speed > q.attack ? '💨 Más veloz que fuerte' : '💪 Más fuerte que veloz');
+                        }
+                        if (q.hp != null && q.defense != null) {
+                            hints.push(q.hp > q.defense ? '❤️ Gran resistencia' : '🛡️ Gran defensa');
+                        }
+                        this.statsHintText = hints[Math.floor(Math.random() * hints.length)];
                         clearTimeout(this.statsHintTimer);
                         this.statsHintTimer = setTimeout(() => { this.statsHintText = ''; }, 6000);
                     }

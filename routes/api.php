@@ -30,7 +30,6 @@ Route::middleware([
     EncryptCookies::class,
     StartSession::class,
     AddQueuedCookiesToResponse::class,
-    VerifyCsrfToken::class,
     'throttle:5,1',
 ])->post('/league/questions', [LeagueQuestionController::class, 'generate']);
 
@@ -38,6 +37,5 @@ Route::middleware([
     EncryptCookies::class,
     StartSession::class,
     AddQueuedCookiesToResponse::class,
-    VerifyCsrfToken::class,
     'throttle:3,1',
 ])->post('/league/score', [LeagueScoreController::class, 'store']);
