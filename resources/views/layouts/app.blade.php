@@ -188,7 +188,7 @@
                     <path d="M20,3 C20,8 21,15 22,21 L25,22 C24,18 24,10 26,3 Z"/>
                     <path d="M4,19 L7,20 L11,16 L16,16 L21,20 L24,19" stroke="#00e676" stroke-width="1.2" fill="none"/>
                 </svg>
-                Inv&iacute;dame un Monster
+                Inv&iacute;tame un Monster
             </a>
         </div>
     </div>
