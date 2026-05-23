@@ -778,8 +778,26 @@ const TYPE_COLORS = {
     steel:    { color:'#B7B7CE', glow:'rgba(183,183,206,0.15)' },
 };
 
-const AUDIO_CTX = typeof AudioContext !== 'undefined' ? new (window.AudioContext || window.webkitAudioContext)() : null;
+let AUDIO_CTX = typeof AudioContext !== 'undefined' ? new (window.AudioContext || window.webkitAudioContext)() : null;
+let audioUnlocked = false;
+
+function unlockAudioContext() {
+    if (AUDIO_CTX && !audioUnlocked) {
+        audioUnlocked = true;
+        AUDIO_CTX.resume && AUDIO_CTX.resume();
+        // Play a silent buffer to "unlock" the context on iOS/Safari
+        try {
+            const o = AUDIO_CTX.createOscillator();
+            const g = AUDIO_CTX.createGain();
+            o.connect(g); g.connect(AUDIO_CTX.destination);
+            g.gain.setValueAtTime(0, AUDIO_CTX.currentTime);
+            o.start(0); o.stop(AUDIO_CTX.currentTime + 0.02);
+        } catch(e) {}
+    }
+}
+
 function playSound(type) {
+    unlockAudioContext();
     if (!AUDIO_CTX) return;
     try {
         const now = AUDIO_CTX.currentTime;
@@ -1005,6 +1023,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
         },
 
         startLeague() {
+            unlockAudioContext();
             this.phase = 'loading';
             this.loadQuestions();
         },
@@ -1072,6 +1091,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
 
         selectAnswer(option) {
             if (this.selectedAnswer !== null) return;
+            unlockAudioContext();
             clearInterval(this.timerInterval);
             clearTimeout(this._imgTimer);
             this.selectedAnswer = option;

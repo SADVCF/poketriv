@@ -14,10 +14,10 @@
 
         {{-- Title --}}
         <div class="home-title-area">
-            <p class="home-eyebrow">¿QUIÉN ES ESE</p>
-            <h1 class="home-headline">POKÉMON?</h1>
+            <p class="home-eyebrow">Poke</p>
+            <h1 class="home-headline">TRIVIA</h1>
         </div>
-
+    
         {{-- Name --}}
         <div class="form-field">
             <label class="form-label">ENTRENADOR</label>
@@ -155,7 +155,7 @@
 .home-title-area { text-align: center; margin-bottom: 26px; }
 .home-eyebrow {
     font-family: var(--font-display); font-weight: 700;
-    font-size: 13px; letter-spacing: .25em; color: var(--text-muted);
+    font-size: 22px; letter-spacing: .25em; color: var(--text-muted);
 }
 .home-headline {
     font-family: var(--font-display); font-weight: 900;

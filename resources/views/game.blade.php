@@ -508,8 +508,25 @@ const TYPE_COLORS = {
     stellar:  { color:'#4FDBD6', glow:'rgba(79,219,214,0.22)' },
 };
 
-const AUDIO_CTX = typeof AudioContext !== 'undefined' ? new (window.AudioContext || window.webkitAudioContext)() : null;
+let AUDIO_CTX = typeof AudioContext !== 'undefined' ? new (window.AudioContext || window.webkitAudioContext)() : null;
+let audioUnlocked = false;
+function unlockAudioContext() {
+    if (AUDIO_CTX && !audioUnlocked) {
+        // Resume context on first user gesture
+        AUDIO_CTX.resume && AUDIO_CTX.resume();
+        // Hacer un ping silencioso para desbloquear el audio en todos los navegadores
+        try {
+            const o = AUDIO_CTX.createOscillator();
+            const g = AUDIO_CTX.createGain();
+            o.connect(g); g.connect(AUDIO_CTX.destination);
+            g.gain.value = 0.0001;
+            o.start(0); o.stop(AUDIO_CTX.currentTime + 0.02);
+        } catch(e) {}
+        audioUnlocked = true;
+    }
+}
 function playSound(type) {
+    unlockAudioContext();
     if (!AUDIO_CTX) return;
     try {
         const now = AUDIO_CTX.currentTime;
@@ -697,6 +714,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         },
 
         selectAnswer(option) {
+            unlockAudioContext();
             if (this.selectedAnswer !== null) return;
             clearInterval(this.timerInterval);
             clearTimeout(this._imgTimer);
