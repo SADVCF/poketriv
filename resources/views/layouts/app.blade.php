@@ -188,7 +188,7 @@
                     <path d="M20,3 C20,8 21,15 22,21 L25,22 C24,18 24,10 26,3 Z"/>
                     <path d="M4,19 L7,20 L11,16 L16,16 L21,20 L24,19" stroke="#00e676" stroke-width="1.2" fill="none"/>
                 </svg>
-                Inv&iacute;dame un Monster
+                Inv&iacute;tame un Monster
             </a>
             <span style="color:var(--text-faint);opacity:.4;font-size:10px">&middot;</span>
             <a href="https://twitter.com/intent/tweet?text=%C2%BFTe+atreves+a+superar+la+Liga+Pok%C3%A9mon%3F+50+preguntas%2C+5+etapas%2C+vidas+y+comodines.+Sin+anuncios%2C+sin+trampas.+%C2%A1El+mejor+trivia+Pok%C3%A9mon+gratuito+en+Pok%C3%A9Trivia%21+%F0%9F%94%A5%F0%9F%8F%86&url=https%3A%2F%2Fpoketriv.com"
