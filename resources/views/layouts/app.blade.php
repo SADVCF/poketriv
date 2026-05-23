@@ -167,9 +167,22 @@
     </div>
 </nav>
 
-<main style="padding-top:54px; position:relative; z-index:1;">
+<main style="padding-top:54px; position:relative; z-index:1; min-height:calc(100vh - 54px - 100px);">
     @yield('content')
 </main>
+
+<footer style="position:relative;z-index:1;border-top:1px solid var(--border);background:rgba(7,8,15,.8);padding:24px 20px;text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:.04em;line-height:1.7">
+    <div style="max-width:960px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <span>PokéTrivia — un juego de preguntas para entrenadores Pokémon</span>
+        <span>Pokémon y sus personajes son &copy; Nintendo &middot; Game Freak &middot; Creatures Inc.</span>
+        <div style="margin-top:6px">
+            <a href="https://ko-fi.com/sadvcfgmailcom" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:var(--yellow);text-decoration:none;font-weight:600;transition:all .12s">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.026 11.822c.033 2.781 1.612 2.821 1.612 2.821h17.707c4.857 0 5.396-4.154 5.396-4.154.812-5.357 2.149-6.694 2.149-6.694zM11.244 15.77c-2.787 0-5.053-2.266-5.053-5.053s2.266-5.053 5.053-5.053 5.053 2.266 5.053 5.053-2.266 5.053-5.053 5.053z"/></svg>
+                Ap&oacute;yame en Ko-fi
+            </a>
+        </div>
+    </div>
+</footer>
 
 </body>
 </html>

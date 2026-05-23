@@ -13,9 +13,10 @@ class DeployPokemon extends Command
     {
         $this->call('migrate');
 
-        $this->call('db:seed', ['--class' => 'PokemonDescriptionSeeder']);
+    $this->call('db:seed', ['--class' => 'PokemonStatsSeeder']);
+    $this->call('db:seed', ['--class' => 'PokemonDescriptionSeeder']);
 
-        $this->info('All Pokémon data tasks complete.');
+    $this->info('All Pokémon data tasks complete.');
         return self::SUCCESS;
     }
 }

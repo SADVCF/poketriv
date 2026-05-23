@@ -89,14 +89,31 @@
 .weight-img   { width:clamp(90px,20vw,130px); height:clamp(90px,20vw,130px); object-fit:contain; transition:opacity .3s; filter:drop-shadow(0 4px 16px rgba(0,0,0,.5)); }
 .weight-name  { font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--text); margin-top:4px; }
 
+/* wildcard buttons */
+.wildcard-btn {
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:10px 14px; min-width:72px;
+    border-radius:10px; cursor:pointer; font-family:var(--font-mono);
+    transition:all .15s; letter-spacing:.02em; line-height:1;
+}
+.wildcard-btn:hover:not(:disabled) {
+    transform:translateY(-3px);
+    filter:brightness(1.3);
+}
+.wildcard-btn:disabled {
+    opacity:.35; cursor:default; filter:saturate(.3);
+}
+
 /* wildcard overlay */
-@keyframes wc-in { from { opacity:0; transform:scale(.92) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
 .wildcard-overlay {
-    position:fixed; inset:0; z-index:300;
-    background:rgba(7,8,15,.82);
-    backdrop-filter: blur(4px);
-    display:flex; align-items:center; justify-content:center;
-    padding:20px;
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(7,8,15,.85);
+}
+.wildcard-panel {
+    background: var(--surface); border:1px solid var(--border-mid);
+    border-radius:16px; padding:24px 20px; max-width:340px; width:90%;
+    animation: fade-up .3s ease-out;
 }
 .wildcard-panel {
     background:var(--surface);
@@ -411,19 +428,69 @@
         </template>
     </div>
 
+    {{-- Answer explanation (shown after selection) --}}
+    <div x-show="selectedAnswer !== null" style="margin-top:8px;margin-bottom:4px;text-align:center;font-family:var(--font-mono);font-size:11px;line-height:1.6;transition:all .2s">
+
+        {{-- who_wins: show types and type advantage --}}
+        <div x-show="current?.question_type === 'who_wins'" style="background:rgba(255,255,255,.03);border-radius:8px;padding:6px 10px;display:inline-block">
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap">
+                <span x-text="current.pokemon_name" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
+                <template x-for="t in (current.defender_types ?? [])" :key="t">
+                    <span :class="'type-badge type-' + t" x-text="t" style="font-size:8px;padding:1px 5px"></span>
+                </template>
+                <span style="color:var(--text-faint);font-size:12px">✕</span>
+                <template x-for="t in (current.attacker_types ?? [])" :key="t">
+                    <span :class="'type-badge type-' + t" x-text="t" style="font-size:8px;padding:1px 5px"></span>
+                </template>
+                <span x-text="current.answer" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
+            </div>
+            <div style="color:var(--text-muted);font-size:9px;margin-top:2px">
+                <span x-text="current.type_explanation ?? ''"></span>
+                <span style="color:#2ed573"> → ¡supereficaz!</span>
+            </div>
+        </div>
+
+        {{-- weight: show kg data --}}
+        <div x-show="current?.question_type === 'weight'" style="background:rgba(255,255,255,.03);border-radius:8px;padding:6px 10px;display:inline-block">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px">
+                <span><b x-text="current.pokemon_name"></b>: <span x-text="current.weight_kg_a"></span> kg</span>
+                <span style="color:var(--text-faint);opacity:.5">vs</span>
+                <span><b x-text="current.display_name_b ?? ''"></b>: <span x-text="current.weight_kg_b"></span> kg</span>
+            </div>
+        </div>
+
+        {{-- size: show data depending on ask_weight --}}
+        <div x-show="current?.question_type === 'size'" style="background:rgba(255,255,255,.03);border-radius:8px;padding:6px 10px;display:inline-block">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px">
+                <template x-if="current.size_ask_weight">
+                    <span><b x-text="current.pokemon_name"></b>: <span x-text="current.weight_kg_a"></span> kg</span>
+                </template>
+                <template x-if="!current.size_ask_weight">
+                    <span><b x-text="current.pokemon_name"></b>: <span x-text="current.height_m_a"></span> m</span>
+                </template>
+                <span style="color:var(--text-faint);opacity:.5">vs</span>
+                <template x-if="current.size_ask_weight">
+                    <span><b x-text="current.display_name_b ?? ''"></b>: <span x-text="current.weight_kg_b"></span> kg</span>
+                </template>
+                <template x-if="!current.size_ask_weight">
+                    <span><b x-text="current.display_name_b ?? ''"></b>: <span x-text="current.height_m_b"></span> m</span>
+                </template>
+            </div>
+        </div>
+    </div>
+
     {{-- Wildcard inventory bar --}}
-    <div x-show="wildcardInventory.length > 0" style="display:flex;gap:8px;margin-top:10px;justify-content:center;flex-wrap:wrap">
+    <div x-show="wildcardInventory.length > 0" style="display:flex;gap:10px;margin-top:14px;justify-content:center;flex-wrap:wrap;padding:0 4px">
         <template x-for="wc in wildcardInventory" :key="wc.id">
             <button
                 @click="useWildcard(wc.id)"
                 :disabled="selectedAnswer !== null || (wc.id === 'shield' && shieldActive)"
                 :title="wc.name + ': ' + wc.desc"
-                :style="`border:1.5px solid ${wc.color}60;background:${wc.color}12;color:${wc.color};`"
-                style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:var(--font-mono);font-size:11px;font-weight:700;transition:all .12s;letter-spacing:.03em"
-                :class="selectedAnswer !== null && wc.id !== 'shield' ? 'op-50' : ''"
+                :style="`border:2px solid ${wc.color}50;background:${wc.color}10;color:${wc.color};box-shadow:0 0 16px ${wc.color}20;`"
+                class="wildcard-btn"
             >
-                <span x-text="wc.icon" style="font-size:16px;line-height:1"></span>
-                <span x-text="wc.name"></span>
+                <span style="font-size:22px;line-height:1;margin-bottom:3px;display:block" x-text="wc.icon"></span>
+                <span style="font-family:var(--font-mono);font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;display:block;line-height:1" x-text="wc.name"></span>
             </button>
         </template>
     </div>
@@ -778,32 +845,29 @@ const TYPE_COLORS = {
     steel:    { color:'#B7B7CE', glow:'rgba(183,183,206,0.15)' },
 };
 
-let AUDIO_CTX = typeof AudioContext !== 'undefined' ? new (window.AudioContext || window.webkitAudioContext)() : null;
-let audioUnlocked = false;
+let AUDIO_CTX = null;
 
-function unlockAudioContext() {
-    if (AUDIO_CTX && !audioUnlocked) {
-        audioUnlocked = true;
-        AUDIO_CTX.resume && AUDIO_CTX.resume();
-        // Play a silent buffer to "unlock" the context on iOS/Safari
-        try {
-            const o = AUDIO_CTX.createOscillator();
-            const g = AUDIO_CTX.createGain();
-            o.connect(g); g.connect(AUDIO_CTX.destination);
-            g.gain.setValueAtTime(0, AUDIO_CTX.currentTime);
-            o.start(0); o.stop(AUDIO_CTX.currentTime + 0.02);
-        } catch(e) {}
-    }
+function ensureAudio() {
+    if (AUDIO_CTX) return;
+    try { AUDIO_CTX = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
 }
 
 function playSound(type) {
-    unlockAudioContext();
+    ensureAudio();
     if (!AUDIO_CTX) return;
+    if (AUDIO_CTX.state === 'suspended') {
+        AUDIO_CTX.resume().then(() => playNow(type))['catch'](function(){});
+        return;
+    }
+    playNow(type);
+}
+
+function playNow(type) {
     try {
-        const now = AUDIO_CTX.currentTime;
+        var now = AUDIO_CTX.currentTime;
         if (type === 'correct') {
-            [523,659,784].forEach((f,i)=>{
-                const o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
+            [523,659,784].forEach(function(f,i){
+                var o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
                 o.connect(g); g.connect(AUDIO_CTX.destination);
                 o.type='sine'; o.frequency.setValueAtTime(f,now+i*.1);
                 g.gain.setValueAtTime(.13,now+i*.1);
@@ -811,14 +875,14 @@ function playSound(type) {
                 o.start(now+i*.1); o.stop(now+i*.1+.3);
             });
         } else if (type === 'wrong' || type === 'timeout') {
-            const o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
+            var o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
             o.connect(g); g.connect(AUDIO_CTX.destination);
             o.type='sawtooth'; o.frequency.setValueAtTime(200,now); o.frequency.setValueAtTime(150,now+.15);
             g.gain.setValueAtTime(.09,now); g.gain.exponentialRampToValueAtTime(.001,now+.3);
             o.start(now); o.stop(now+.3);
         } else if (type === 'life_lost') {
-            [220, 180, 140].forEach((f,i) => {
-                const o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
+            [220, 180, 140].forEach(function(f,i){
+                var o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
                 o.connect(g); g.connect(AUDIO_CTX.destination);
                 o.type='sine'; o.frequency.setValueAtTime(f,now+i*.18);
                 g.gain.setValueAtTime(.12,now+i*.18);
@@ -826,14 +890,14 @@ function playSound(type) {
                 o.start(now+i*.18); o.stop(now+i*.18+.4);
             });
         } else if (type === 'tick') {
-            const o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
+            var o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
             o.connect(g); g.connect(AUDIO_CTX.destination);
             o.frequency.setValueAtTime(800,now); g.gain.setValueAtTime(.04,now);
             g.gain.exponentialRampToValueAtTime(.001,now+.05);
             o.start(now); o.stop(now+.05);
         } else if (type === 'wildcard') {
-            [784,1047,1319].forEach((f,i)=>{
-                const o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
+            [784,1047,1319].forEach(function(f,i){
+                var o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
                 o.connect(g); g.connect(AUDIO_CTX.destination);
                 o.type='sine'; o.frequency.setValueAtTime(f,now+i*.12);
                 g.gain.setValueAtTime(.1,now+i*.12);
@@ -841,8 +905,8 @@ function playSound(type) {
                 o.start(now+i*.12); o.stop(now+i*.12+.25);
             });
         } else if (type === 'finish') {
-            [523,659,784,1047].forEach((f,i)=>{
-                const o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
+            [523,659,784,1047].forEach(function(f,i){
+                var o=AUDIO_CTX.createOscillator(),g=AUDIO_CTX.createGain();
                 o.connect(g); g.connect(AUDIO_CTX.destination);
                 o.type='sine'; o.frequency.setValueAtTime(f,now+i*.15);
                 g.gain.setValueAtTime(.11,now+i*.15);
@@ -1023,7 +1087,6 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
         },
 
         startLeague() {
-            unlockAudioContext();
             this.phase = 'loading';
             this.loadQuestions();
         },
@@ -1091,7 +1154,6 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
 
         selectAnswer(option) {
             if (this.selectedAnswer !== null) return;
-            unlockAudioContext();
             clearInterval(this.timerInterval);
             clearTimeout(this._imgTimer);
             this.selectedAnswer = option;
@@ -1113,6 +1175,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                 this.pointsPopup = { show: true, amount: gained };
                 setTimeout(() => { this.pointsPopup.show = false; }, 950);
                 playSound('correct');
+                const hasExplanation = ['who_wins','weight','size'].includes(this.current?.question_type);
                 const hitMilestone = (this.streak % 5 === 0);
                 setTimeout(() => {
                     if (hitMilestone) {
@@ -1123,11 +1186,12 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                     } else {
                         this.nextQuestion();
                     }
-                }, 1400);
+                }, hasExplanation ? 2600 : 1400);
             } else {
                 this.streak = 0;
                 playSound('wrong');
-                setTimeout(() => this.loseLife(), 800);
+                const hasExplanation = ['who_wins','weight','size'].includes(this.current?.question_type);
+                setTimeout(() => this.loseLife(), hasExplanation ? 2200 : 800);
             }
         },
 

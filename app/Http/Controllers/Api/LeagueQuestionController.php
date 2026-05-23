@@ -19,6 +19,27 @@ class LeagueQuestionController extends Controller
         'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy',
     ];
 
+    private const TYPE_TRANSLATIONS = [
+        'normal'   => 'Normal',
+        'fire'     => 'Fuego',
+        'water'    => 'Agua',
+        'electric' => 'Eléctrico',
+        'grass'    => 'Planta',
+        'ice'      => 'Hielo',
+        'fighting' => 'Lucha',
+        'poison'   => 'Veneno',
+        'ground'   => 'Tierra',
+        'flying'   => 'Volador',
+        'psychic'  => 'Psíquico',
+        'bug'      => 'Bicho',
+        'rock'     => 'Roca',
+        'ghost'    => 'Fantasma',
+        'dragon'   => 'Dragón',
+        'dark'     => 'Siniestro',
+        'steel'    => 'Acero',
+        'fairy'    => 'Hada',
+    ];
+
     // multiplier × 2 stored as integer (0=0×, 1=½×, 2=1×, 4=2×)
     private const TYPE_CHART = [
         //          nor  fir  wat  ele  gra  ice  fig  poi  gro  fly  psy  bug  roc  gho  dra  dar  ste  fai
@@ -75,11 +96,16 @@ class LeagueQuestionController extends Controller
 
             $stagePokemons = $pool->shuffle()->take(10);
 
+            // Build balanced type pool for this stage (10 types, no adjacent duplicates)
+            $typePool = $this->buildBalancedTypePool($stagePokemons);
+
+            $idx = 0;
             foreach ($stagePokemons as $pokemon) {
-                $qType = $this->pickQuestionType($pokemon);
+                $qType = $typePool[$idx] ?? 'silhouette';
                 $q = $this->buildQuestion($pokemon, $qType, $stage, $stageNum, $pool, $allNamesInStage);
                 $questions[] = $q;
                 $answers[]   = $q['answer'];
+                $idx++;
             }
         }
 
@@ -93,38 +119,79 @@ class LeagueQuestionController extends Controller
         ]);
     }
 
-    private function pickQuestionType(Pokemon $pokemon): string
+    private function buildBalancedTypePool($pokemons): array
     {
-        $hasStats  = $pokemon->hp !== null;
-        $hasWeight = $pokemon->weight !== null;
-        $hasHeight = $pokemon->height !== null;
+        // Base type distribution per stage (roughly matching original weights)
+        $baseTypes = [
+            'silhouette', 'silhouette',
+            'type',
+            'who_wins',
+            'pixelated',
+            'blur_reveal',
+            'flash',
+            'description',
+            'stat',
+            'size',
+            'weight',
+        ]; // 11 items — trimmed to 10 when all available
 
-        // weighted random pick
-        $weights = [
-            'silhouette'  => 20,
-            'type'        => 13,
-            'pixelated'   => 9,
-            'who_wins'    => 9,
-            'stat'        => $hasStats  ? 9  : 0,
-            'weight'      => $hasWeight ? 7  : 0,
-            'blur_reveal' => 10,
-            'flash'       => 7,
-            'size'        => ($hasWeight && $hasHeight) ? 9 : 0,
-            'description' => $pokemon->description ? 12 : 0,
+        // Types that require specific data on the Pokémon
+        $requirements = [
+            'stat'        => fn($p) => $p->hp !== null,
+            'weight'      => fn($p) => $p->weight !== null,
+            'size'        => fn($p) => $p->weight !== null && $p->height !== null,
+            'description' => fn($p) => $p->description !== null,
         ];
 
-        $total = array_sum($weights);
-        $rand  = mt_rand(1, $total);
-        $acc   = 0;
-
-        foreach ($weights as $type => $w) {
-            $acc += $w;
-            if ($rand <= $acc) {
-                return $type;
+        // Count how many Pokémon support each conditional type
+        $availableCount = [];
+        foreach ($requirements as $type => $check) {
+            $availableCount[$type] = 0;
+            foreach ($pokemons as $p) {
+                if ($check($p)) $availableCount[$type]++;
             }
         }
 
-        return 'silhouette';
+        // Replace unavailable types with silhouette; trim to 10
+        $pool = [];
+        foreach ($baseTypes as $type) {
+            if (isset($requirements[$type]) && $availableCount[$type] < 3) {
+                $pool[] = 'silhouette';
+            } else {
+                $pool[] = $type;
+            }
+        }
+        while (count($pool) > 10) {
+            $pool = array_reverse($pool);
+            array_pop($pool);
+            $pool = array_reverse($pool);
+        }
+
+        // Cap any single type at 2 per stage
+        $counts = array_count_values($pool);
+        $over = [];
+        foreach ($counts as $t => $c) {
+            if ($c > 2) $over[$t] = $c - 2;
+        }
+        if ($over) {
+            foreach ($pool as $i => $t) {
+                if (isset($over[$t]) && $over[$t] > 0) {
+                    $pool[$i] = 'silhouette';
+                    $over[$t]--;
+                }
+            }
+        }
+
+        // Shuffle until no adjacent duplicates
+        do {
+            shuffle($pool);
+            $ok = true;
+            for ($i = 1; $i < count($pool); $i++) {
+                if ($pool[$i] === $pool[$i - 1]) { $ok = false; break; }
+            }
+        } while (!$ok);
+
+        return $pool;
     }
 
     private function buildQuestion(
@@ -253,11 +320,31 @@ class LeagueQuestionController extends Controller
             ->values()
             ->toArray();
 
+        // Generate type explanation
+        $typePairs = [];
+        $chart = self::TYPE_CHART;
+        $types = self::TYPES;
+        $typeIndex = array_flip($types);
+        foreach ($correct->types as $atkType) {
+            if (!isset($chart[$atkType])) continue;
+            foreach ($pokemon->types as $defType) {
+                if (!isset($typeIndex[$defType])) continue;
+                if ($chart[$atkType][$typeIndex[$defType]] === 4) {
+                    $atkLabel = self::TYPE_TRANSLATIONS[$atkType] ?? ucfirst($atkType);
+                    $defLabel = self::TYPE_TRANSLATIONS[$defType] ?? ucfirst($defType);
+                    $typePairs[] = "{$atkLabel} > {$defLabel}";
+                }
+            }
+        }
+
         return array_merge($base, [
-            'question_text' => "¿Quién vence a {$pokemon->display_name}?",
-            'answer'        => $correct->display_name,
-            'options'       => $options,
-            'reveal_name'   => true,
+            'question_text'  => "¿Quién vence a {$pokemon->display_name}?",
+            'answer'         => $correct->display_name,
+            'options'        => $options,
+            'reveal_name'    => true,
+            'defender_types' => $pokemon->types,
+            'attacker_types' => $correct->types,
+            'type_explanation' => implode(', ', $typePairs),
         ]);
     }
 
@@ -312,6 +399,8 @@ class LeagueQuestionController extends Controller
             'options'        => $options,
             'artwork_url_b'  => $pokemonB->artwork_url,
             'display_name_b' => $pokemonB->display_name,
+            'weight_kg_a'    => round($pokemonA->weight / 10, 1),
+            'weight_kg_b'    => round($pokemonB->weight / 10, 1),
         ]);
     }
 
@@ -368,6 +457,10 @@ class LeagueQuestionController extends Controller
             'artwork_url_b'  => $pokemonB->artwork_url,
             'display_name_b' => $pokemonB->display_name,
             'size_ask_weight'=> $askWeight,
+            'weight_kg_a'    => round($pokemonA->weight / 10, 1),
+            'weight_kg_b'    => round($pokemonB->weight / 10, 1),
+            'height_m_a'     => round($pokemonA->height / 10, 1),
+            'height_m_b'     => round($pokemonB->height / 10, 1),
         ]);
     }
 
