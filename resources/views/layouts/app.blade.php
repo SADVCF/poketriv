@@ -176,7 +176,7 @@
         <span style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase">Pok&eacute;Trivia</span>
         <span>Un juego de preguntas para entrenadores Pok&eacute;mon &mdash; completamente gratuito y sin publicidad</span>
         <span style="opacity:.5">Pok&eacute;mon y sus personajes son &copy; Nintendo &middot; Game Freak &middot; Creatures Inc.</span>
-        <div style="margin-top:4px">
+        <div style="margin-top:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center">
             <a href="https://ko-fi.com/sadvcfgmailcom" target="_blank" rel="noopener"
                style="display:inline-flex;align-items:center;gap:7px;padding:6px 16px 6px 13px;border-radius:7px;
                       background:linear-gradient(135deg,var(--surface-2),rgba(0,230,118,.06));
@@ -188,7 +188,16 @@
                     <path d="M20,3 C20,8 21,15 22,21 L25,22 C24,18 24,10 26,3 Z"/>
                     <path d="M4,19 L7,20 L11,16 L16,16 L21,20 L24,19" stroke="#00e676" stroke-width="1.2" fill="none"/>
                 </svg>
-                Inv&iacute;tame un Monster
+                Inv&iacute;dame un Monster
+            </a>
+            <span style="color:var(--text-faint);opacity:.4;font-size:10px">&middot;</span>
+            <a href="https://twitter.com/intent/tweet?text=%C2%BFTe+atreves+a+superar+la+Liga+Pok%C3%A9mon%3F+50+preguntas%2C+5+etapas%2C+vidas+y+comodines.+Sin+anuncios%2C+sin+trampas.+%C2%A1El+mejor+trivia+Pok%C3%A9mon+gratuito+en+Pok%C3%A9Trivia%21+%F0%9F%94%A5%F0%9F%8F%86&url=https%3A%2F%2Fpoketriv.com"
+               target="_blank" rel="noopener"
+               style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;
+                      background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-muted);text-decoration:none;
+                      font-size:10px;font-weight:600;transition:all .12s">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Compartir en X
             </a>
         </div>
     </div>
