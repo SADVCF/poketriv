@@ -20,13 +20,13 @@
                 $ballPoke = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#ee1515"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
                 $ballGreat = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#1565C0"/><path d="M7 9h4" transform="rotate(180 9 9)" fill="none" stroke="#C62828" stroke-width="1.8"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
                 $ballUltra = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#222"/><path d="M5 7.5h8M7 9h4M5 10.5h6" stroke="#FFD600" stroke-width="1.2" stroke-linecap="round"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
-                $swordIcon = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M3 3l9 12M15 3L7 15" stroke="#ffcb05" stroke-width="2" stroke-linecap="round"/><path d="M5 12h3M10 12h3" stroke="#ffcb05" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3h.01M15 3h.01M12 15h.01M6 15h.01" stroke="#ffcb05" stroke-width="2.5" stroke-linecap="round"/></svg>';
+                $swordIcon = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M3 3l9 12M15 3L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 12h3M10 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3h.01M15 3h.01M12 15h.01M6 15h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
                 $ballMap = ['easy' => $ballPoke, 'medium' => $ballGreat, 'hard' => $ballUltra, 'league' => $swordIcon];
                 $filterLabels = ['all' => ['Todos'], 'easy' => ['Fácil', $ballPoke], 'medium' => ['Medio', $ballGreat], 'hard' => ['Difícil', $ballUltra], 'league' => ['Liga', $swordIcon]];
             @endphp
             @foreach($filterLabels as $val => $item)
                 <a href="{{ route('ranking', ['difficulty' => $val, 'max_generation' => $maxGen, 'page' => null]) }}"
-                   class="filter-btn {{ $difficulty === $val ? 'filter-btn--on' : '' }}"
+                   class="filter-btn {{ $difficulty === $val ? 'filter-btn--on' : '' }}{{ $val === 'league' && $difficulty === 'league' ? ' filter-btn--league-on' : '' }}"
                 >
                     @if (count($item) > 1)<span class="filter-ball">{!! $item[1] !!}</span>@endif
                     <span>{{ $item[0] }}</span>
@@ -132,7 +132,7 @@
         <div class="podium-slot podium-slot--2">
             <div class="podium-card">
                 <div class="podium-medal">{!! $trophySilver !!}</div>
-                <div class="podium-name">{{ $top3[1]->player_name }}</div>
+                <div class="podium-name" title="{{ $top3[1]->player_name }}">{{ $top3[1]->player_name }}</div>
                 <div class="podium-score">{{ number_format($top3[1]->score) }}</div>
                 <div class="podium-sub">{{ $top3[1]->correct_answers }}/{{ $top3[1]->total_questions }} aciertos</div>
                 @if(($top3[1]->max_streak ?? 0) >= 3)
@@ -146,7 +146,7 @@
         <div class="podium-slot podium-slot--1">
             <div class="podium-card podium-card--1">
                 <div class="podium-medal">{!! $trophyGold !!}</div>
-                <div class="podium-name" style="font-size:16px">{{ $top3[0]->player_name }}</div>
+                <div class="podium-name" style="font-size:16px" title="{{ $top3[0]->player_name }}">{{ $top3[0]->player_name }}</div>
                 <div class="podium-score podium-score--1">{{ number_format($top3[0]->score) }}</div>
                 <div class="podium-sub">{{ $top3[0]->correct_answers }}/{{ $top3[0]->total_questions }} aciertos</div>
                 @if(($top3[0]->max_streak ?? 0) >= 3)
@@ -160,7 +160,7 @@
         <div class="podium-slot podium-slot--3">
             <div class="podium-card">
                 <div class="podium-medal">{!! $trophyBronze !!}</div>
-                <div class="podium-name">{{ $top3[2]->player_name }}</div>
+                <div class="podium-name" title="{{ $top3[2]->player_name }}">{{ $top3[2]->player_name }}</div>
                 <div class="podium-score">{{ number_format($top3[2]->score) }}</div>
                 <div class="podium-sub">{{ $top3[2]->correct_answers }}/{{ $top3[2]->total_questions }} aciertos</div>
                 @if(($top3[2]->max_streak ?? 0) >= 3)
@@ -198,7 +198,7 @@
                         @else<span class="rank-num">{{ $globalRank }}</span>
                         @endif
                     </td>
-                    <td class="td-name">{{ $s->player_name }}</td>
+                    <td class="td-name" title="{{ $s->player_name }}">{{ $s->player_name }}</td>
                     <td class="td-score {{ $idx === 0 ? 'td-score--1' : '' }}">{{ number_format($s->score) }}</td>
                     <td class="text-center hide-sm td-acc">
                         <span class="acc-num">{{ $s->correct_answers }}</span>

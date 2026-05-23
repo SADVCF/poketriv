@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('player_name', 50);
             $table->unsignedInteger('score')->default(0);
             $table->unsignedTinyInteger('correct_answers')->default(0);
-            $table->unsignedTinyInteger('total_questions')->default(40);
+            $table->unsignedTinyInteger('total_questions')->default(50);
             $table->unsignedTinyInteger('lives_lost')->default(0);
             $table->unsignedSmallInteger('time_seconds')->default(0);
             $table->unsignedTinyInteger('max_streak')->default(0);

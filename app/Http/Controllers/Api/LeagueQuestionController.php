@@ -47,6 +47,7 @@ class LeagueQuestionController extends Controller
         2 => ['from' => 10, 'to' => 19, 'maxGen' => 5, 'options' => 4, 'timeLimit' => 12],
         3 => ['from' => 20, 'to' => 29, 'maxGen' => 7, 'options' => 6, 'timeLimit' => 10],
         4 => ['from' => 30, 'to' => 39, 'maxGen' => 9, 'options' => 6, 'timeLimit' =>  8],
+        5 => ['from' => 40, 'to' => 49, 'maxGen' => 9, 'options' => 6, 'timeLimit' =>  7],
     ];
 
     private const STAT_LABELS = [

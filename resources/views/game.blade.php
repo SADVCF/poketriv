@@ -184,7 +184,7 @@
                 :key="currentIndex"
                 :src="current ? current.artwork_url : ''"
                 :alt="current ? current.answer : ''"
-                :class="['poke-img', revealed ? 'poke-reveal' : 'poke-silhouette']"
+                :class="['poke-img', (!revealed && current && current.question_type === 'silhouette') ? 'poke-silhouette' : (revealed ? 'poke-reveal' : '')]"
                 :style="`opacity:${imgLoaded ? 1 : 0}`"
                 @@load="imgLoaded = true"
                 @@error="imgLoaded = true"

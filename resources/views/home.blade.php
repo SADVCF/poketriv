@@ -82,7 +82,7 @@
         <div class="info-strip">
             <template x-if="difficulty === 'league'">
                 <div class="info-strip-inner">
-                    <span class="chip chip--gold">40 preguntas</span>
+                    <span class="chip chip--gold">50 preguntas</span>
                     <span class="chip chip--gold">3 vidas ❤️</span>
                     <span class="chip chip--gold">Dificultad progresiva</span>
                     <span class="chip chip--gold">Tipos variados</span>

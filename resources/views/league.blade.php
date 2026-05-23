@@ -75,6 +75,7 @@
 .stage-badge-2 { color:#ffcb05; border-color:rgba(255,203,5,.5); }
 .stage-badge-3 { color:#ff7043; border-color:rgba(255,112,67,.5); }
 .stage-badge-4 { color:#ff4757; border-color:rgba(255,71,87,.5); }
+.stage-badge-5 { color:#8e44ad; border-color:rgba(142,68,173,.5); }
 
 /* intro logo glow */
 @keyframes liga-glow {
@@ -132,7 +133,7 @@
 @endpush
 
 @section('content')
-<div class="game-root" x-data="leagueGame({ playerName: @js($playerName) })" x-cloak>
+<div class="game-root" x-data="leagueGame({ playerName: @js($playerName), difficulty: 'hard' })" x-cloak>
 
 {{-- ── INTRO ─────────────────────────────────────────────────────── --}}
 <div x-show="phase === 'intro'" class="state-center" style="max-width:460px;width:100%">
@@ -155,7 +156,7 @@
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
-                <div style="font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--yellow);line-height:1">40</div>
+                <div style="font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--yellow);line-height:1">50</div>
                 <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">PREGUNTAS</div>
             </div>
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
@@ -168,7 +169,7 @@
             </div>
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
                 <div style="font-family:var(--font-display);font-size:18px;font-weight:900;color:#2ed573;line-height:1">I→IV</div>
-                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">4 ETAPAS</div>
+                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">5 ETAPAS</div>
             </div>
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
                 <div style="font-family:var(--font-display);font-size:18px;font-weight:900;color:#a78bfa;line-height:1">6</div>
@@ -263,7 +264,7 @@
             <div class="hud-q-label">
                 PREGUNTA
                 <span class="hud-q-num" x-text="currentIndex + 1"></span>
-                <span style="color:var(--text-faint)"> / 40</span>
+                <span style="color:var(--text-faint)"> / 50</span>
             </div>
             <div class="hud-bar-track">
                 <div class="hud-bar-fill" :style="`width:${progress}%`"></div>
@@ -461,7 +462,7 @@
         <p class="result-player" x-text="playerName"></p>
         <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:5px">
             Detenido en la <span style="color:var(--yellow)" x-text="'Etapa ' + maxStageReached"></span>
-            &nbsp;·&nbsp; pregunta <span x-text="currentIndex + 1"></span>/40
+            &nbsp;·&nbsp; pregunta <span x-text="currentIndex + 1"></span>/50
         </p>
     </div>
     <div class="result-stats">
@@ -521,7 +522,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:var(--green)">
-                <span x-text="correctCount"></span><span style="color:var(--text-faint);font-size:18px">/40</span>
+                <span x-text="correctCount"></span><span style="color:var(--text-faint);font-size:18px">/50</span>
             </div>
             <div class="stat-lbl">Aciertos</div>
         </div>
@@ -834,9 +835,10 @@ function playSound(type) {
     } catch(e) {}
 }
 
-function leagueGame({ playerName }) {
+function leagueGame({ playerName, difficulty = 'hard' }) {
     return {
         playerName,
+        difficulty,
         phase: 'intro',
         questions: [],
         currentIndex: 0,
@@ -877,7 +879,7 @@ function leagueGame({ playerName }) {
 
         get current()     { return this.questions[this.currentIndex] ?? null; },
         get currentStage(){ return this.current?.stage ?? 1; },
-        get progress()    { return (this.currentIndex / 40) * 100; },
+        get progress()    { return (this.currentIndex / 50) * 100; },
 
         get pokemonAName() {
             if (!this.current || (this.current.question_type !== 'weight' && this.current.question_type !== 'size')) return '';
@@ -894,7 +896,9 @@ function leagueGame({ playerName }) {
         get imgClass() {
             if (!this.current) return '';
             const qt = this.current.question_type;
-            if (qt === 'silhouette' && !this.revealed) return 'poke-silhouette';
+            const diff = this.current?.difficulty || this.difficulty || '';
+            // Solo silueta en modo difícil
+            if (qt === 'silhouette' && diff === 'hard' && !this.revealed) return 'poke-silhouette';
             if (qt === 'blur_reveal' && !this.revealed) return '';
             if (this.revealed) return 'poke-reveal';
             return '';
@@ -940,7 +944,7 @@ function leagueGame({ playerName }) {
         },
 
         get resultEmoji() {
-            const total = this.phase === 'finished' ? 40 : Math.max(this.currentIndex + 1, 1);
+            const total = this.phase === 'finished' ? 50 : Math.max(this.currentIndex + 1, 1);
             const p = total > 0 ? this.correctCount / total : 0;
             const pika = (eyes, mouth, extra='') => `<svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 43L10 5L36 21Z" fill="#FFCB05" stroke="#c8a000" stroke-width="1"/>
@@ -996,7 +1000,7 @@ function leagueGame({ playerName }) {
         },
 
         get resultTitle() {
-            const p = this.correctCount / 40;
+            const p = this.correctCount / 50;
             return p >= .9 ? '¡Maestro Pokémon!' : p >= .7 ? '¡Liga superada!' : p >= .5 ? 'Bien luchado' : '¡Sigue entrenando!';
         },
 

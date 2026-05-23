@@ -14,12 +14,12 @@ class LeagueScoreController extends Controller
         $validated = $request->validate([
             'player_name'     => 'required|string|max:50|regex:/^[\p{L}0-9\s\-_\.\']+$/u',
             'score'           => 'required|integer|min:0|max:9999999',
-            'correct_answers' => 'required|integer|min:0|max:40',
-            'total_questions' => 'required|integer|min:1|max:40',
+            'correct_answers' => 'required|integer|min:0|max:50',
+            'total_questions' => 'required|integer|min:1|max:50',
             'lives_lost'      => 'required|integer|min:0|max:3',
             'time_seconds'    => 'required|integer|min:0|max:9999',
-            'max_streak'      => 'nullable|integer|min:0|max:40',
-            'max_stage'       => 'required|integer|min:1|max:4',
+            'max_streak'      => 'nullable|integer|min:0|max:50',
+            'max_stage'       => 'required|integer|min:1|max:5',
             'token'           => 'required|string',
         ]);
 
@@ -35,9 +35,9 @@ class LeagueScoreController extends Controller
         }
 
         // Max possible score estimate (generous upper bound for anti-cheat)
-        // Per question: base 200 + max time bonus (15*15=225) + max streak bonus (40*50=2000)
-        // Gen multiplier for stage 4 (maxGen=9): 1 + (9-1)*0.15 = 2.2
-        $maxScore = (int) ceil(40 * (200 + 225 + 2000) * 2.2) + (3 * 500);
+        // Per question: base 200 + max time bonus (15*15=225) + max streak bonus (50*50=2500)
+        // Gen multiplier for stage 5 (maxGen=9): 1 + (9-1)*0.15 = 2.2
+        $maxScore = (int) ceil(50 * (200 + 225 + 2500) * 2.2) + (3 * 500);
         if ($validated['score'] > $maxScore) {
             return response()->json(['error' => 'Score exceeds maximum possible'], 403);
         }
