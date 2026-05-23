@@ -171,14 +171,24 @@
     @yield('content')
 </main>
 
-<footer style="position:relative;z-index:1;border-top:1px solid var(--border);background:rgba(7,8,15,.8);padding:24px 20px;text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:.04em;line-height:1.7">
+<footer style="position:relative;z-index:1;border-top:1px solid var(--border);background:rgba(7,8,15,.85);padding:24px 20px 22px;text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:.04em;line-height:1.7">
     <div style="max-width:960px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
-        <span>PokéTrivia — un juego de preguntas para entrenadores Pokémon</span>
-        <span>Pokémon y sus personajes son &copy; Nintendo &middot; Game Freak &middot; Creatures Inc.</span>
-        <div style="margin-top:6px">
-            <a href="https://ko-fi.com/sadvcfgmailcom" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:var(--yellow);text-decoration:none;font-weight:600;transition:all .12s">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.026 11.822c.033 2.781 1.612 2.821 1.612 2.821h17.707c4.857 0 5.396-4.154 5.396-4.154.812-5.357 2.149-6.694 2.149-6.694zM11.244 15.77c-2.787 0-5.053-2.266-5.053-5.053s2.266-5.053 5.053-5.053 5.053 2.266 5.053 5.053-2.266 5.053-5.053 5.053z"/></svg>
-                Ap&oacute;yame en Ko-fi
+        <span style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase">Pok&eacute;Trivia</span>
+        <span>Un juego de preguntas para entrenadores Pok&eacute;mon &mdash; completamente gratuito y sin publicidad</span>
+        <span style="opacity:.5">Pok&eacute;mon y sus personajes son &copy; Nintendo &middot; Game Freak &middot; Creatures Inc.</span>
+        <div style="margin-top:4px">
+            <a href="https://ko-fi.com/sadvcfgmailcom" target="_blank" rel="noopener"
+               style="display:inline-flex;align-items:center;gap:7px;padding:6px 16px 6px 13px;border-radius:7px;
+                      background:linear-gradient(135deg,var(--surface-2),rgba(0,230,118,.06));
+                      border:1px solid rgba(0,230,118,.3);color:#00e676;text-decoration:none;
+                      font-weight:700;font-size:11px;transition:all .15s">
+                <svg width="16" height="16" viewBox="0 0 28 24" fill="#00e676" style="flex-shrink:0">
+                    <path d="M3,3 C5,10 5,18 4,22 L7,21 C7,15 8,8 8,3 Z"/>
+                    <path d="M11,3 C12,8 13,14 14,18 C15,14 16,8 17,3 Z"/>
+                    <path d="M20,3 C20,8 21,15 22,21 L25,22 C24,18 24,10 26,3 Z"/>
+                    <path d="M4,19 L7,20 L11,16 L16,16 L21,20 L24,19" stroke="#00e676" stroke-width="1.2" fill="none"/>
+                </svg>
+                Inv&iacute;dame un Monster
             </a>
         </div>
     </div>
