@@ -97,7 +97,7 @@ class LeagueQuestionController extends Controller
             $stagePokemons = $pool->shuffle()->take(10);
 
             // Build balanced type pool for this stage (10 types, no adjacent duplicates)
-            $typePool = $this->buildBalancedTypePool($stagePokemons);
+            $typePool = $this->buildBalancedTypePool($stagePokemons, $stageNum);
 
             $idx = 0;
             foreach ($stagePokemons as $pokemon) {
@@ -119,21 +119,19 @@ class LeagueQuestionController extends Controller
         ]);
     }
 
-    private function buildBalancedTypePool($pokemons): array
+    private function buildBalancedTypePool($pokemons, int $stageNum = 1): array
     {
-        // Base type distribution per stage (roughly matching original weights)
-        $baseTypes = [
-            'silhouette', 'silhouette',
-            'type',
-            'who_wins', 'who_wins',
-            'flash',
-            'description',
-            'stat', 'stat',
-            'size',
-            'weight',
-        ]; // 11 items — trimmed to 10 when all available
+        $stagePools = [
+            1 => ['silhouette','silhouette','size','size','weight','weight','type','type','description','who_wins'],
+            2 => ['silhouette','silhouette','size','weight','type','description','description','who_wins','flash','cry'],
+            3 => ['silhouette','silhouette','type','description','who_wins','who_wins','flash','flash','stat','cry'],
+            4 => ['silhouette','silhouette','type','description','who_wins','flash','flash','stat','stat','cry'],
+            5 => ['silhouette','description','who_wins','who_wins','flash','flash','stat','stat','cry','cry'],
+        ];
 
-        // Types that require specific data on the Pokémon
+        $pool = $stagePools[$stageNum] ?? $stagePools[1];
+
+        // Replace types that require data when not enough Pokémon have it
         $requirements = [
             'stat'        => fn($p) => $p->hp !== null,
             'weight'      => fn($p) => $p->weight !== null,
@@ -141,7 +139,6 @@ class LeagueQuestionController extends Controller
             'description' => fn($p) => $p->description !== null,
         ];
 
-        // Count how many Pokémon support each conditional type
         $availableCount = [];
         foreach ($requirements as $type => $check) {
             $availableCount[$type] = 0;
@@ -150,33 +147,9 @@ class LeagueQuestionController extends Controller
             }
         }
 
-        // Replace unavailable types with silhouette; trim to 10
-        $pool = [];
-        foreach ($baseTypes as $type) {
+        foreach ($pool as $i => $type) {
             if (isset($requirements[$type]) && $availableCount[$type] < 3) {
-                $pool[] = 'silhouette';
-            } else {
-                $pool[] = $type;
-            }
-        }
-        while (count($pool) > 10) {
-            $pool = array_reverse($pool);
-            array_pop($pool);
-            $pool = array_reverse($pool);
-        }
-
-        // Cap any single type at 2 per stage
-        $counts = array_count_values($pool);
-        $over = [];
-        foreach ($counts as $t => $c) {
-            if ($c > 2) $over[$t] = $c - 2;
-        }
-        if ($over) {
-            foreach ($pool as $i => $t) {
-                if (isset($over[$t]) && $over[$t] > 0) {
-                    $pool[$i] = 'silhouette';
-                    $over[$t]--;
-                }
+                $pool[$i] = 'silhouette';
             }
         }
 
@@ -203,6 +176,7 @@ class LeagueQuestionController extends Controller
         $base = [
             'question_type' => $qType,
             'artwork_url'   => $pokemon->artwork_url,
+            'cry_url'       => "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/{$pokemon->pokedex_id}.ogg",
             'answer'        => $pokemon->display_name,
             'pokemon_name'  => $pokemon->display_name,
             'types'         => $pokemon->types,
@@ -228,7 +202,7 @@ class LeagueQuestionController extends Controller
             'who_wins'   => $this->buildWhoWins($base, $pokemon, $stage, $pool),
             'stat'       => $this->buildStat($base, $pokemon),
             'weight'     => $this->buildWeight($base, $pokemon, $pool),
-            'blur_reveal'=> $this->buildBlurReveal($base, $pokemon, $stage, $allNames),
+            'cry'        => $this->buildCry($base, $pokemon, $stage, $allNames),
             'flash'      => $this->buildFlash($base, $pokemon, $stage, $allNames),
             'size'       => $this->buildSize($base, $pokemon, $pool),
             'description'=> $this->buildDescription($base, $pokemon, $stage, $allNames),
@@ -408,6 +382,15 @@ class LeagueQuestionController extends Controller
             'question_text' => '¿Quién se esconde tras el desenfoque?',
             'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
             'time_limit'    => max(8, $stage['timeLimit'] + 2),
+        ]);
+    }
+
+    private function buildCry(array $base, Pokemon $pokemon, array $stage, $allNames): array
+    {
+        return array_merge($base, [
+            'question_text' => '¿Qué Pokémon hace este grito?',
+            'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
+            'time_limit'    => $stage['timeLimit'] + 3,
         ]);
     }
 

@@ -77,6 +77,26 @@
 .stage-badge-4 { color:#ff4757; border-color:rgba(255,71,87,.5); }
 .stage-badge-5 { color:#8e44ad; border-color:rgba(142,68,173,.5); }
 
+/* cry / soundwave */
+.soundwave {
+    display: flex; align-items: center; justify-content: center;
+    gap: 5px; height: 90px;
+}
+.sw-bar {
+    width: 7px; border-radius: 4px; height: 8px;
+    background: rgba(255,203,5,.18);
+    transition: background .3s;
+}
+.soundwave--active .sw-bar {
+    background: var(--yellow);
+    box-shadow: 0 0 8px rgba(255,203,5,.45);
+    animation: sw-bounce .65s ease-in-out infinite alternate;
+}
+@keyframes sw-bounce {
+    from { height: 6px;  opacity: .7; }
+    to   { height: 52px; opacity: 1;  }
+}
+
 /* intro logo glow */
 @keyframes liga-glow {
     0%,100% { text-shadow: 0 0 40px rgba(255,203,5,.4), 0 0 80px rgba(255,203,5,.12); }
@@ -346,8 +366,26 @@
             </div>
         </div>
 
+        {{-- CRY --}}
+        <div x-show="current && current.question_type === 'cry'"
+             style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 16px 12px;min-height:200px;gap:18px">
+            <div class="soundwave" :class="cryPlaying ? 'soundwave--active' : ''">
+                <template x-for="(d, i) in swDelays" :key="i">
+                    <div class="sw-bar" :style="`animation-delay:${d}s`"></div>
+                </template>
+            </div>
+            <button @click="playCry()" :disabled="selectedAnswer !== null"
+                    style="display:flex;align-items:center;gap:7px;padding:9px 20px;border-radius:8px;
+                           background:rgba(255,203,5,.1);border:1px solid rgba(255,203,5,.35);
+                           color:var(--yellow);font-family:var(--font-mono);font-size:12px;font-weight:700;
+                           letter-spacing:.06em;cursor:pointer;transition:all .12s"
+                    :style="selectedAnswer !== null ? 'opacity:.4;cursor:default' : ''">
+                🔊 Escuchar de nuevo
+            </button>
+        </div>
+
         {{-- SINGLE IMAGE (includes description text) --}}
-        <div x-show="current && current.question_type !== 'weight' && current.question_type !== 'size'" class="poke-stage">
+        <div x-show="current && current.question_type !== 'weight' && current.question_type !== 'size' && current.question_type !== 'cry'" class="poke-stage">
             <img
                 :key="currentIndex"
                 :src="current && (current.question_type !== 'description' || revealed) ? current.artwork_url : ''"
@@ -372,7 +410,7 @@
         </div>
 
         {{-- Pokemon name row (not weight/size/description) --}}
-        <div x-show="current && current.question_type !== 'weight' && current.question_type !== 'size' && current.question_type !== 'description'" class="poke-name-row">
+        <div x-show="current && current.question_type !== 'weight' && current.question_type !== 'size' && current.question_type !== 'description' && current.question_type !== 'cry'" class="poke-name-row">
             <span x-show="shouldRevealName" class="poke-name" x-text="current ? current.pokemon_name : ''"></span>
             <span x-show="!shouldRevealName" class="poke-unknown">? ? ?</span>
         </div>
@@ -1013,6 +1051,11 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
         imgBLoaded: false,
         showNameModal: false,
 
+        // ── Cry ────────────────────────────────────────────────────
+        cryAudio: null,
+        cryPlaying: false,
+        swDelays: [0, .1, .2, .05, .15, .25, .08, .18, .12],
+
         // ── Comodines ──────────────────────────────────────────────
         wildcardInventory: [],
         wildcardChoiceActive: false,
@@ -1035,7 +1078,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
         get shouldRevealName() {
             if (!this.current) return false;
             const qt = this.current.question_type;
-            if (qt === 'silhouette' || qt === 'pixelated' || qt === 'blur_reveal' || qt === 'flash' || qt === 'description') return this.revealed;
+            if (['silhouette', 'flash', 'description', 'cry'].includes(qt)) return this.revealed;
             return true;
         },
 
@@ -1187,6 +1230,21 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
             }
         },
 
+        playCry() {
+            if (this.cryAudio) { this.cryAudio.pause(); this.cryAudio.currentTime = 0; }
+            if (!this.current?.cry_url) return;
+            this.cryAudio = new Audio(this.current.cry_url);
+            this.cryPlaying = true;
+            this.cryAudio.onended  = () => { this.cryPlaying = false; };
+            this.cryAudio.onerror  = () => { this.cryPlaying = false; };
+            this.cryAudio.play().catch(() => { this.cryPlaying = false; });
+        },
+
+        stopCry() {
+            if (this.cryAudio) { this.cryAudio.pause(); this.cryAudio = null; }
+            this.cryPlaying = false;
+        },
+
         startTimer() {
             clearInterval(this.timerInterval);
             this.timerStart = Date.now();
@@ -1194,6 +1252,10 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
             // flash: hide image after 1s
             if (this.current?.question_type === 'flash') {
                 setTimeout(() => { this.flashVisible = false; }, 1000);
+            }
+            // cry: auto-play
+            if (this.current?.question_type === 'cry') {
+                this.$nextTick(() => this.playCry());
             }
             this.timerInterval = setInterval(() => {
                 const now = Date.now();
@@ -1240,7 +1302,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                 setTimeout(() => { this.pointsPopup.show = false; }, 950);
                 playSound('correct');
                 const hasExplanation = ['who_wins','weight','size'].includes(this.current?.question_type);
-                const hitMilestone = (this.streak % 5 === 0);
+                const hitMilestone = (this.streak % 4 === 0);
                 setTimeout(() => {
                     if (hitMilestone) {
                         clearInterval(this.timerInterval);
@@ -1261,6 +1323,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
 
         handleTimeout() {
             if (this.selectedAnswer !== null) return;
+            this.stopCry();
             this.selectedAnswer = '__timeout__';
             this.revealed = true;
             clearTimeout(this._imgTimer);
@@ -1303,6 +1366,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
             if (this.currentIndex >= this.questions.length - 1) {
                 this.finishGame(); return;
             }
+            this.stopCry();
             this.imgLoaded      = false;
             clearTimeout(this._imgTimer);
             this._imgTimer = setTimeout(() => { this.imgLoaded = true; }, 4000);
@@ -1327,7 +1391,8 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
             this.maxStageReached = 4;
             this.phase = 'finished';
             playSound('finish');
-            this.saveScore();
+            this.showNameModal = true;
+            this.$nextTick(() => { this.$refs.nameInput?.focus(); });
         },
 
         async saveScore() {
@@ -1342,7 +1407,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     },
                     body: JSON.stringify({
-                        player_name:     this.playerName.trim() || 'Entrenador',
+                        player_name:     this.playerName.trim(),
                         score:           this.score,
                         correct_answers: this.correctCount,
                         total_questions: this.questions.length,
@@ -1370,12 +1435,16 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
         },
 
         submitName() {
+            if (!this.playerName.trim()) {
+                this.showNameModal = false;
+                return;
+            }
             this.showNameModal = false;
             this.saveScore();
         },
 
         restartLeague() {
-            window.location.href = '/';
+            window.location.href = '/league';
         },
 
         getOptionClass(option) {
@@ -1403,7 +1472,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
 				if (inventoryIds.has(w.id)) return false;
 				return true;
 			});
-            return available.sort(() => Math.random() - .5).slice(0, 3);
+            return available.sort(() => Math.random() - .5).slice(0, 2);
         },
 
         selectWildcard(wc) {
@@ -1425,7 +1494,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                 case 'fifty_fifty': {
                     const wrong = (this.current?.options ?? []).filter(o => o !== this.current.answer);
                     const shuffled = wrong.sort(() => Math.random() - .5);
-                    this.hiddenOptions = shuffled.slice(0, Math.min(2, wrong.length - 1));
+                    this.hiddenOptions = shuffled.slice(0, Math.min(2, wrong.length));
                     break;
                 }
                 case 'reveal_type':
