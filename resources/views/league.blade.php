@@ -903,7 +903,7 @@
     outline:none;
     color:var(--text);font-family:var(--font-display);
     font-size:28px;font-weight:700;text-align:center;
-    letter-spacing:.15em;text-transform:uppercase;
+    letter-spacing:.15em;
 }
 .modal-input::placeholder { color:rgba(221,228,240,.15); }
 .modal-btn {
