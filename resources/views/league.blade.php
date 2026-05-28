@@ -665,6 +665,10 @@
                x-ref="nameInput"
                placeholder="-- --"
                class="modal-input"
+               autocomplete="off"
+               autocorrect="off"
+               autocapitalize="off"
+               spellcheck="false"
                @keydown.enter="submitName()"
         >
         <button @click="submitName()" class="modal-btn">GUARDAR</button>
