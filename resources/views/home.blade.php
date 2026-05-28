@@ -208,6 +208,7 @@
 }
 @media (max-width: 960px) {
     .home-layout { flex-direction: column; gap: 20px; padding: 16px; align-items: stretch; }
+    .marquee-wrap { display: none; }
 }
 
 /* ── Left: Hero branding ────────────────────────────────────────────── */
