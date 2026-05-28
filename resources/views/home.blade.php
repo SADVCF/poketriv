@@ -297,6 +297,7 @@
     border-radius: 14px; padding: 16px 18px;
     cursor: pointer; transition: all .15s; position: relative; overflow: hidden;
     display: flex; flex-direction: column; gap: 12px;
+    user-select: none; -webkit-user-select: none;
 }
 .league-hero::before {
     content: ''; position: absolute; inset: 0;

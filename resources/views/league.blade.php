@@ -223,7 +223,7 @@
 
 
 
-        <button @click="startLeague()" style="width:100%;padding:15px;background:var(--yellow);color:#06070d;border:none;border-radius:8px;font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:.1em;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.4),0 4px 22px rgba(255,203,5,.3);transition:all .12s;margin-bottom:10px">
+        <button @click="startLeague()" style="width:100%;padding:15px;background:var(--yellow);color:#06070d;border:none;border-radius:8px;font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:.1em;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.4),0 4px 22px rgba(255,203,5,.3);transition:all .12s;margin-bottom:10px;user-select:none;-webkit-user-select:none">
             ⚔️ COMENZAR LIGA
         </button>
         <a href="{{ route('home') }}" style="display:block;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text-faint);text-decoration:none;letter-spacing:.05em">← Volver al inicio</a>
@@ -858,6 +858,7 @@
     box-shadow: 0 2px 0 rgba(0,0,0,.4), 0 4px 20px rgba(255,203,5,.3);
     transition: all .12s;
     text-decoration: none; text-align: center; display: block;
+    user-select: none; -webkit-user-select: none;
 }
 .btn-yellow:hover { transform: translateY(-2px); box-shadow: 0 4px 0 rgba(0,0,0,.4), 0 8px 28px rgba(255,203,5,.4); }
 .btn-ghost {
