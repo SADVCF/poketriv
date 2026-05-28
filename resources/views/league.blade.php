@@ -470,15 +470,15 @@
         {{-- who_wins: show types and type advantage --}}
         <div x-show="current?.question_type === 'who_wins'" style="background:rgba(255,255,255,.03);border-radius:8px;padding:6px 10px;display:inline-block">
             <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap">
-                <span x-text="current?.pokemon_name ?? ''" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
-                <template x-for="t in (current?.defender_types ?? [])" :key="t">
-                    <span :class="'type-badge type-' + t" x-text="t" style="font-size:8px;padding:1px 5px"></span>
-                </template>
-                <span style="color:var(--text-faint);font-size:12px">✕</span>
+                <span x-text="current?.answer ?? ''" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
                 <template x-for="t in (current?.attacker_types ?? [])" :key="t">
                     <span :class="'type-badge type-' + t" x-text="t" style="font-size:8px;padding:1px 5px"></span>
                 </template>
-                <span x-text="current?.answer ?? ''" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
+                <span style="color:var(--text-faint);font-size:12px">✕</span>
+                <template x-for="t in (current?.defender_types ?? [])" :key="t">
+                    <span :class="'type-badge type-' + t" x-text="t" style="font-size:8px;padding:1px 5px"></span>
+                </template>
+                <span x-text="current?.pokemon_name ?? ''" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
             </div>
             <div style="color:var(--text-muted);font-size:9px;margin-top:2px">
                 <span x-text="current?.type_explanation ?? ''"></span>
