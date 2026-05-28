@@ -8,7 +8,7 @@ class GameController extends Controller
 {
     public function index(Request $request)
     {
-        $playerName   = $request->query('player', 'Entrenador');
+        $playerName   = '';
         $difficulty   = $request->query('difficulty', 'medium');
         $maxGen       = (int) $request->query('max_generation', 9);
         $questionCount = (int) $request->query('question_count', 10);

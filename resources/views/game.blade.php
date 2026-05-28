@@ -58,6 +58,55 @@
 /* score bump */
 .score-bump { animation:score-bump .45s ease-out; }
 
+/* ── Arcade name modal ──────────────────────────────────────────── */
+.modal-overlay {
+    position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,.65);
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(4px);
+}
+.modal-box {
+    background:linear-gradient(145deg,#0d0f1a,#12141e);
+    border:1px solid rgba(255,203,5,.2);
+    border-radius:16px;
+    padding:32px 28px 24px;
+    text-align:center;
+    max-width:320px;width:90%;
+    position:relative;
+    box-shadow:0 0 40px rgba(255,203,5,.08),0 20px 60px rgba(0,0,0,.5);
+}
+.modal-rings { margin-bottom:10px; }
+.modal-label {
+    font-family:var(--font-display);font-weight:800;font-size:18px;
+    letter-spacing:.18em;color:var(--yellow);margin-bottom:18px;
+}
+.modal-input {
+    width:100%;padding:10px 0;
+    background:transparent;border:none;
+    border-bottom:2px solid var(--yellow);
+    outline:none;
+    color:var(--text);font-family:var(--font-display);
+    font-size:28px;font-weight:700;text-align:center;
+    letter-spacing:.15em;text-transform:uppercase;
+}
+.modal-input::placeholder { color:rgba(221,228,240,.15); }
+.modal-btn {
+    margin-top:20px;width:100%;padding:10px;
+    background:var(--yellow);color:#06070d;border:none;
+    border-radius:8px;
+    font-family:var(--font-display);font-size:15px;font-weight:900;
+    letter-spacing:.12em;cursor:pointer;
+    box-shadow:0 2px 0 rgba(0,0,0,.4);
+    transition:all .12s;
+}
+.modal-btn:hover { transform:translateY(-1px); }
+.modal-btn:active { transform:translateY(1px); }
+.modal-hint {
+    font-family:var(--font-mono);font-size:9px;
+    color:var(--text-faint);margin-top:10px;
+}
+@keyframes fade-in { from { opacity:0; } to { opacity:1; } }
+
 /* question slide animation */
 .q-enter { animation:slide-right .3s ease-out; }
 
@@ -88,7 +137,7 @@
 <div
     class="game-root"
     x-data="pokeGame({
-        playerName: @js($playerName),
+        playerName: '',
         difficulty: @js($difficulty),
         timePerQuestion: {{ $timePerQuestion }},
         optionCount: {{ $optionCount }},
@@ -175,7 +224,7 @@
 
         {{-- Descripción del Pokémon (solo mostrar antes de revelar) --}}
         <div class="poke-desc-row" x-show="!revealed && current && current.description">
-            <span class="poke-desc" x-text="current.description"></span>
+            <span class="poke-desc" x-text="current?.description ?? ''"></span>
         </div>
 
         {{-- Pokemon image --}}
@@ -231,7 +280,6 @@
     <div class="result-hero">
         <div class="result-emoji" x-html="resultEmoji"></div>
         <h2 class="result-title" x-text="resultTitle"></h2>
-        <p class="result-player" x-text="playerName"></p>
     </div>
 
     <div class="result-stats">
@@ -266,6 +314,24 @@
     <div class="result-actions">
         <button @click="restartGame()" class="btn-yellow">Jugar de nuevo</button>
         <a href="{{ route('ranking') }}" class="btn-ghost">Ver ranking →</a>
+    </div>
+</div>
+
+{{-- ── ARCADE NAME MODAL ──────────────────────────────────────────── --}}
+<div x-show="showNameModal" class="modal-overlay" style="animation:fade-in .2s ease-out">
+    <div class="modal-box" @click.outside="showNameModal = false">
+        <div class="modal-rings">
+            <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="var(--yellow)" stroke-width="2" opacity=".3"/><circle cx="24" cy="24" r="16" fill="none" stroke="var(--yellow)" stroke-width="1.5" opacity=".5"/></svg>
+        </div>
+        <p class="modal-label">TU NOMBRE DE ENTRENADOR</p>
+        <input x-model="playerName" type="text" maxlength="15"
+               x-ref="nameInput"
+               placeholder="-- --"
+               class="modal-input"
+               @keydown.enter="submitName()"
+        >
+        <button @click="submitName()" class="modal-btn">GUARDAR</button>
+        <p class="modal-hint">Letras, números y espacios</p>
     </div>
 </div>
 
@@ -582,6 +648,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         gameStartTime: null, totalTime: 0,
         pointsPopup: { show: false, amount: 0, streakBonus: 0, genMult: 1 },
         imgLoaded: false,
+        showNameModal: false,
 
         get current()     { return this.questions[this.currentIndex] ?? null; },
         get progress()    { return this.questions.length > 0 ? (this.currentIndex / this.questions.length) * 100 : 0; },
@@ -767,11 +834,17 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
             this.totalTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
             this.phase = 'finished';
             playSound('finish');
+            this.showNameModal = true;
+            this.$nextTick(() => { this.$refs.nameInput?.focus(); });
+        },
+
+        async submitName() {
+            this.showNameModal = false;
             try {
                 const res = await fetch('/api/game/score', {
                     method: 'POST',
                     headers: { 'Content-Type':'application/json', 'Accept':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-                    body: JSON.stringify({ player_name:this.playerName, score:this.score, correct_answers:this.correctCount, total_questions:this.questions.length, time_seconds:this.totalTime, difficulty:this.difficulty, max_generation:this.maxGen, max_streak:this.maxStreak, token:this.gameToken }),
+                    body: JSON.stringify({ player_name:this.playerName.trim() || 'Entrenador', score:this.score, correct_answers:this.correctCount, total_questions:this.questions.length, time_seconds:this.totalTime, difficulty:this.difficulty, max_generation:this.maxGen, max_streak:this.maxStreak, token:this.gameToken }),
                 });
                 const data = await res.json();
                 this.rank = data.rank;
@@ -779,8 +852,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         },
 
         restartGame() {
-            const p = new URLSearchParams({ player:this.playerName, difficulty:this.difficulty, max_generation:this.maxGen, question_count:this.questionCount });
-            window.location.href = `/game?${p}`;
+            window.location.href = '/';
         },
 
         getOptionClass(option) {

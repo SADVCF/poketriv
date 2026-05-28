@@ -125,12 +125,10 @@ class LeagueQuestionController extends Controller
         $baseTypes = [
             'silhouette', 'silhouette',
             'type',
-            'who_wins',
-            'pixelated',
-            'blur_reveal',
+            'who_wins', 'who_wins',
             'flash',
             'description',
-            'stat',
+            'stat', 'stat',
             'size',
             'weight',
         ]; // 11 items — trimmed to 10 when all available

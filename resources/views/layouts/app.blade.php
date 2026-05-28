@@ -110,28 +110,28 @@
         /* ── Navbar ──────────────────────────────────────────────────── */
         .pkt-nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            height: 54px;
+            height: 40px;
             background: rgba(7,8,15,0.96);
             border-bottom: 1px solid var(--border-mid);
         }
         .pkt-nav-inner {
             max-width: 960px; margin: 0 auto; height: 100%;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 16px;
         }
         .pkt-logo {
-            display: flex; align-items: center; gap: 10px;
-            font-family: var(--font-display); font-size: 21px; font-weight: 900;
+            display: flex; align-items: center; gap: 6px;
+            font-family: var(--font-display); font-size: 16px; font-weight: 900;
             letter-spacing: 0.04em; color: var(--text); text-decoration: none;
         }
         .pkt-logo em { color: var(--yellow); font-style: normal; }
         .pkt-logo-ball {
-            width: 28px; height: 28px; position: relative; flex-shrink: 0;
+            width: 20px; height: 20px; position: relative; flex-shrink: 0;
         }
-        .pkt-nav-links { display: flex; gap: 2px; }
+        .pkt-nav-links { display: flex; gap: 1px; }
         .pkt-nav-link {
-            padding: 6px 14px; border-radius: 6px;
-            font-size: 13px; font-weight: 600; letter-spacing: 0.03em;
+            padding: 4px 10px; border-radius: 5px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.03em;
             color: var(--text-muted); text-decoration: none;
             transition: color .15s, background .15s;
         }
@@ -167,22 +167,19 @@
     </div>
 </nav>
 
-<main style="padding-top:54px; position:relative; z-index:1; min-height:calc(100vh - 54px - 100px);">
+<main style="padding-top:40px; position:relative; z-index:1; min-height:0;">
     @yield('content')
 </main>
 
-<footer style="position:relative;z-index:1;border-top:1px solid var(--border);background:rgba(7,8,15,.85);padding:24px 20px 22px;text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:.04em;line-height:1.7">
-    <div style="max-width:960px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
-        <span style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase">Pok&eacute;Trivia</span>
-        <span>Un juego de preguntas para entrenadores Pok&eacute;mon &mdash; completamente gratuito y sin publicidad</span>
-        <span style="opacity:.5">Pok&eacute;mon y sus personajes son &copy; Nintendo &middot; Game Freak &middot; Creatures Inc.</span>
-        <div style="margin-top:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center">
+<footer style="position:relative;z-index:1;border-top:1px solid var(--border);background:rgba(7,8,15,.85);padding:10px 16px;text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--text-muted);letter-spacing:.04em;line-height:1.4">
+    <div style="max-width:960px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:2px">
+        <span style="color:rgba(221,228,240,0.65);font-weight:400">Pok&eacute;mon &copy; Nintendo &middot; Game Freak &middot; Creatures Inc.</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:1px">
             <a href="https://ko-fi.com/sadvcfgmailcom" target="_blank" rel="noopener"
-               style="display:inline-flex;align-items:center;gap:7px;padding:6px 16px 6px 13px;border-radius:7px;
-                      background:linear-gradient(135deg,var(--surface-2),rgba(0,230,118,.06));
-                      border:1px solid rgba(0,230,118,.3);color:#00e676;text-decoration:none;
-                      font-weight:700;font-size:11px;transition:all .15s">
-                <svg width="16" height="16" viewBox="0 0 28 24" fill="#00e676" style="flex-shrink:0">
+               style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 10px;border-radius:5px;
+                      background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.25);color:#00e676;text-decoration:none;
+                      font-weight:700;font-size:9px;transition:all .12s">
+                <svg width="12" height="12" viewBox="0 0 28 24" fill="#00e676" style="flex-shrink:0">
                     <path d="M3,3 C5,10 5,18 4,22 L7,21 C7,15 8,8 8,3 Z"/>
                     <path d="M11,3 C12,8 13,14 14,18 C15,14 16,8 17,3 Z"/>
                     <path d="M20,3 C20,8 21,15 22,21 L25,22 C24,18 24,10 26,3 Z"/>
@@ -190,13 +187,12 @@
                 </svg>
                 Inv&iacute;tame un Monster
             </a>
-            <span style="color:var(--text-faint);opacity:.4;font-size:10px">&middot;</span>
             <a href="https://twitter.com/intent/tweet?text=%C2%BFTe+atreves+a+superar+la+Liga+Pok%C3%A9mon%3F+50+preguntas%2C+5+etapas%2C+vidas+y+comodines.+Sin+anuncios%2C+sin+trampas.+%C2%A1El+mejor+trivia+Pok%C3%A9mon+gratuito+en+Pok%C3%A9Trivia%21+%F0%9F%94%A5%F0%9F%8F%86&url=https%3A%2F%2Fpoketriv.com"
                target="_blank" rel="noopener"
-               style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;
+               style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:5px;
                       background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-muted);text-decoration:none;
-                      font-size:10px;font-weight:600;transition:all .12s">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                      font-size:9px;font-weight:600;transition:all .12s">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 Compartir en X
             </a>
         </div>

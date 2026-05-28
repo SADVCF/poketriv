@@ -150,7 +150,7 @@
 @endpush
 
 @section('content')
-<div class="game-root" x-data="leagueGame({ playerName: @js($playerName), difficulty: 'hard' })" x-cloak>
+<div class="game-root" x-data="leagueGame({ playerName: '', difficulty: 'hard' })" x-cloak>
 
 {{-- ── INTRO ─────────────────────────────────────────────────────── --}}
 <div x-show="phase === 'intro'" class="state-center" style="max-width:460px;width:100%">
@@ -189,7 +189,7 @@
                 <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">5 ETAPAS</div>
             </div>
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
-                <div style="font-family:var(--font-display);font-size:18px;font-weight:900;color:#a78bfa;line-height:1">6</div>
+                <div style="font-family:var(--font-display);font-size:18px;font-weight:900;color:#a78bfa;line-height:1">8</div>
                 <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">TIPOS DE PREG.</div>
             </div>
         </div>
@@ -201,9 +201,7 @@
             <span style="color:#ff4757">Etapa IV</span> Gen I-IX · 8s
         </div>
 
-        <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--text-muted);margin-bottom:12px">
-            ENTRENADOR: <span style="color:var(--text);font-weight:700" x-text="playerName"></span>
-        </div>
+
 
         <button @click="startLeague()" style="width:100%;padding:15px;background:var(--yellow);color:#06070d;border:none;border-radius:8px;font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:.1em;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.4),0 4px 22px rgba(255,203,5,.3);transition:all .12s;margin-bottom:10px">
             ⚔️ COMENZAR LIGA
@@ -434,18 +432,18 @@
         {{-- who_wins: show types and type advantage --}}
         <div x-show="current?.question_type === 'who_wins'" style="background:rgba(255,255,255,.03);border-radius:8px;padding:6px 10px;display:inline-block">
             <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap">
-                <span x-text="current.pokemon_name" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
-                <template x-for="t in (current.defender_types ?? [])" :key="t">
+                <span x-text="current?.pokemon_name ?? ''" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
+                <template x-for="t in (current?.defender_types ?? [])" :key="t">
                     <span :class="'type-badge type-' + t" x-text="t" style="font-size:8px;padding:1px 5px"></span>
                 </template>
                 <span style="color:var(--text-faint);font-size:12px">✕</span>
-                <template x-for="t in (current.attacker_types ?? [])" :key="t">
+                <template x-for="t in (current?.attacker_types ?? [])" :key="t">
                     <span :class="'type-badge type-' + t" x-text="t" style="font-size:8px;padding:1px 5px"></span>
                 </template>
-                <span x-text="current.answer" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
+                <span x-text="current?.answer ?? ''" style="font-weight:700;color:var(--text-main);font-size:11px"></span>
             </div>
             <div style="color:var(--text-muted);font-size:9px;margin-top:2px">
-                <span x-text="current.type_explanation ?? ''"></span>
+                <span x-text="current?.type_explanation ?? ''"></span>
                 <span style="color:#2ed573"> → ¡supereficaz!</span>
             </div>
         </div>
@@ -453,27 +451,27 @@
         {{-- weight: show kg data --}}
         <div x-show="current?.question_type === 'weight'" style="background:rgba(255,255,255,.03);border-radius:8px;padding:6px 10px;display:inline-block">
             <div style="display:flex;align-items:center;justify-content:center;gap:8px">
-                <span><b x-text="current.pokemon_name"></b>: <span x-text="current.weight_kg_a"></span> kg</span>
+                <span><b x-text="current?.pokemon_name ?? ''"></b>: <span x-text="current?.weight_kg_a ?? ''"></span> kg</span>
                 <span style="color:var(--text-faint);opacity:.5">vs</span>
-                <span><b x-text="current.display_name_b ?? ''"></b>: <span x-text="current.weight_kg_b"></span> kg</span>
+                <span><b x-text="current?.display_name_b ?? ''"></b>: <span x-text="current?.weight_kg_b ?? ''"></span> kg</span>
             </div>
         </div>
 
         {{-- size: show data depending on ask_weight --}}
         <div x-show="current?.question_type === 'size'" style="background:rgba(255,255,255,.03);border-radius:8px;padding:6px 10px;display:inline-block">
             <div style="display:flex;align-items:center;justify-content:center;gap:8px">
-                <template x-if="current.size_ask_weight">
-                    <span><b x-text="current.pokemon_name"></b>: <span x-text="current.weight_kg_a"></span> kg</span>
+                <template x-if="current?.size_ask_weight">
+                    <span><b x-text="current?.pokemon_name ?? ''"></b>: <span x-text="current?.weight_kg_a ?? ''"></span> kg</span>
                 </template>
-                <template x-if="!current.size_ask_weight">
-                    <span><b x-text="current.pokemon_name"></b>: <span x-text="current.height_m_a"></span> m</span>
+                <template x-if="!current?.size_ask_weight">
+                    <span><b x-text="current?.pokemon_name ?? ''"></b>: <span x-text="current?.height_m_a ?? ''"></span> m</span>
                 </template>
                 <span style="color:var(--text-faint);opacity:.5">vs</span>
-                <template x-if="current.size_ask_weight">
-                    <span><b x-text="current.display_name_b ?? ''"></b>: <span x-text="current.weight_kg_b"></span> kg</span>
+                <template x-if="current?.size_ask_weight">
+                    <span><b x-text="current?.display_name_b ?? ''"></b>: <span x-text="current?.weight_kg_b ?? ''"></span> kg</span>
                 </template>
-                <template x-if="!current.size_ask_weight">
-                    <span><b x-text="current.display_name_b ?? ''"></b>: <span x-text="current.height_m_b"></span> m</span>
+                <template x-if="!current?.size_ask_weight">
+                    <span><b x-text="current?.display_name_b ?? ''"></b>: <span x-text="current?.height_m_b ?? ''"></span> m</span>
                 </template>
             </div>
         </div>
@@ -526,7 +524,6 @@
     <div class="result-hero">
         <div class="result-emoji" x-html="resultEmoji"></div>
         <h2 class="result-title" style="color:#ff4757">GAME OVER</h2>
-        <p class="result-player" x-text="playerName"></p>
         <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:5px">
             Detenido en la <span style="color:var(--yellow)" x-text="'Etapa ' + maxStageReached"></span>
             &nbsp;·&nbsp; pregunta <span x-text="currentIndex + 1"></span>/50
@@ -570,7 +567,6 @@
     <div class="result-hero">
         <div class="result-emoji" x-html="resultEmoji"></div>
         <h2 class="result-title" x-text="resultTitle"></h2>
-        <p class="result-player" x-text="playerName"></p>
         <div style="display:flex;gap:5px;justify-content:center;margin-top:8px">
             <template x-for="i in 3" :key="i">
                 <svg width="22" height="22" viewBox="0 0 24 24">
@@ -617,6 +613,24 @@
         <button @click="restartLeague()" class="btn-yellow">Jugar de nuevo</button>
         <a href="{{ route('ranking', ['difficulty' => 'league']) }}" class="btn-ghost">Ver ranking</a>
         <a href="{{ route('home') }}" class="btn-ghost">Inicio</a>
+    </div>
+</div>
+
+{{-- ── ARCADE NAME MODAL ──────────────────────────────────────────── --}}
+<div x-show="showNameModal" class="modal-overlay" style="animation:fade-in .2s ease-out">
+    <div class="modal-box" @click.outside="showNameModal = false">
+        <div class="modal-rings">
+            <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="var(--yellow)" stroke-width="2" opacity=".3"/><circle cx="24" cy="24" r="16" fill="none" stroke="var(--yellow)" stroke-width="1.5" opacity=".5"/></svg>
+        </div>
+        <p class="modal-label">TU NOMBRE DE ENTRENADOR</p>
+        <input x-model="playerName" type="text" maxlength="15"
+               x-ref="nameInput"
+               placeholder="-- --"
+               class="modal-input"
+               @keydown.enter="submitName()"
+        >
+        <button @click="submitName()" class="modal-btn">GUARDAR</button>
+        <p class="modal-hint">Letras, números y espacios</p>
     </div>
 </div>
 
@@ -821,6 +835,55 @@
 }
 .chip--yellow { background:rgba(255,203,5,.1); border-color:rgba(255,203,5,.3); color:var(--yellow); }
 .chip--green  { background:rgba(46,213,115,.1); border-color:rgba(46,213,115,.3); color:#2ed573; }
+
+/* ── Arcade name modal ──────────────────────────────────────────── */
+.modal-overlay {
+    position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,.65);
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(4px);
+}
+.modal-box {
+    background:linear-gradient(145deg,#0d0f1a,#12141e);
+    border:1px solid rgba(255,203,5,.2);
+    border-radius:16px;
+    padding:32px 28px 24px;
+    text-align:center;
+    max-width:320px;width:90%;
+    position:relative;
+    box-shadow:0 0 40px rgba(255,203,5,.08),0 20px 60px rgba(0,0,0,.5);
+}
+.modal-rings { margin-bottom:10px; }
+.modal-label {
+    font-family:var(--font-display);font-weight:800;font-size:18px;
+    letter-spacing:.18em;color:var(--yellow);margin-bottom:18px;
+}
+.modal-input {
+    width:100%;padding:10px 0;
+    background:transparent;border:none;
+    border-bottom:2px solid var(--yellow);
+    outline:none;
+    color:var(--text);font-family:var(--font-display);
+    font-size:28px;font-weight:700;text-align:center;
+    letter-spacing:.15em;text-transform:uppercase;
+}
+.modal-input::placeholder { color:rgba(221,228,240,.15); }
+.modal-btn {
+    margin-top:20px;width:100%;padding:10px;
+    background:var(--yellow);color:#06070d;border:none;
+    border-radius:8px;
+    font-family:var(--font-display);font-size:15px;font-weight:900;
+    letter-spacing:.12em;cursor:pointer;
+    box-shadow:0 2px 0 rgba(0,0,0,.4);
+    transition:all .12s;
+}
+.modal-btn:hover { transform:translateY(-1px); }
+.modal-btn:active { transform:translateY(1px); }
+.modal-hint {
+    font-family:var(--font-mono);font-size:9px;
+    color:var(--text-faint);margin-top:10px;
+}
+@keyframes fade-in { from { opacity:0; } to { opacity:1; } }
 </style>
 
 <script>
@@ -948,6 +1011,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
         pointsPopup: { show: false, amount: 0 },
         imgLoaded: false,
         imgBLoaded: false,
+        showNameModal: false,
 
         // ── Comodines ──────────────────────────────────────────────
         wildcardInventory: [],
@@ -1226,7 +1290,9 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                 setTimeout(() => {
                     this.totalTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
                     this.phase = 'game_over';
-                    this.saveScore();
+                    playSound('finish');
+                    this.showNameModal = true;
+                    this.$nextTick(() => { this.$refs.nameInput?.focus(); });
                 }, 1200);
             } else {
                 setTimeout(() => this.nextQuestion(), 1000);
@@ -1276,7 +1342,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     },
                     body: JSON.stringify({
-                        player_name:     this.playerName,
+                        player_name:     this.playerName.trim() || 'Entrenador',
                         score:           this.score,
                         correct_answers: this.correctCount,
                         total_questions: this.questions.length,
@@ -1303,8 +1369,13 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
             }
         },
 
+        submitName() {
+            this.showNameModal = false;
+            this.saveScore();
+        },
+
         restartLeague() {
-            window.location.href = `/league?player=${encodeURIComponent(this.playerName)}`;
+            window.location.href = '/';
         },
 
         getOptionClass(option) {

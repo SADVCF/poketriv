@@ -6,10 +6,8 @@ use Illuminate\Http\Request;
 
 class LeagueController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $playerName = $request->query('player', 'Entrenador');
-
-        return view('league', compact('playerName'));
+        return view('league', ['playerName' => '']);
     }
 }
