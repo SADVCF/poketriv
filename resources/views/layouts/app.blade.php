@@ -6,6 +6,40 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'PokéTrivia')</title>
 
+    {{-- SEO --}}
+    <meta name="description" content="@yield('description', 'PokéTrivia — El mejor trivia Pokémon gratuito. Adivina quién es ese Pokémon, supera la Liga y compite en el ranking. Sin anuncios, sin registro.')">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- Open Graph --}}
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="{{ url()->current() }}">
+    <meta property="og:title"       content="@yield('title', 'PokéTrivia')">
+    <meta property="og:description" content="@yield('description', 'El mejor trivia Pokémon gratuito. Adivina quién es ese Pokémon, supera la Liga y compite en el ranking.')">
+    <meta property="og:image"       content="{{ asset('og-image.png') }}">
+    <meta property="og:locale"      content="es_ES">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="@yield('title', 'PokéTrivia')">
+    <meta name="twitter:description" content="@yield('description', 'El mejor trivia Pokémon gratuito. Sin anuncios, sin registro.')">
+    <meta name="twitter:image"       content="{{ asset('og-image.png') }}">
+
+    {{-- JSON-LD --}}
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "WebApplication",
+      "name": "PokéTrivia",
+      "url": "https://poketriv.com",
+      "description": "El mejor trivia Pokémon gratuito. Adivina quién es ese Pokémon, supera la Liga y compite en el ranking global.",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Any",
+      "inLanguage": "es",
+      "offers": { "@@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>

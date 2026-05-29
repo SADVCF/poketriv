@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'PokéTrivia — ¿Quién es ese Pokémon?')
+@section('description', 'Juega al trivia Pokémon gratis. Adivina el Pokémon por su silueta, responde preguntas de tipos y evoluciones. Sin anuncios, sin registro. ¿Cuántos conoces?')
 
 @section('content')
 <div class="home-root" x-data="homeForm()">

@@ -10,7 +10,12 @@
       "Bash(php -l app/Http/Controllers/LeagueController.php)",
       "Bash(php -l app/Models/LeagueScore.php)",
       "Bash(del \"C:\\\\laragon\\\\www\\\\poketriv\\\\public\\\\preview-icons.html\")",
-      "PowerShell(Remove-Item \"C:\\\\laragon\\\\www\\\\poketriv\\\\public\\\\preview-icons.html\" -Confirm:$false)"
+      "PowerShell(Remove-Item \"C:\\\\laragon\\\\www\\\\poketriv\\\\public\\\\preview-icons.html\" -Confirm:$false)",
+      "Bash(npx --yes serve -p 4400 .)",
+      "Bash(npx serve *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4400/)",
+      "Bash(npm list *)",
+      "Bash(node generate-og.mjs)"
     ]
   }
 }

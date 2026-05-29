@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'PokéTrivia — Jugando')
+@section('description', 'Estás jugando a PokéTrivia. Responde preguntas de Pokémon a contrarreloj y sube en el ranking global.')
 
 @push('styles')
 <style>

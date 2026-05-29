@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', 'PokéTrivia — Ranking')
+@section('title', 'PokéTrivia — Ranking Global')
+@section('description', 'Ranking global de PokéTrivia. Compite contra jugadores de todo el mundo y demuestra quién sabe más de Pokémon. ¿Llegarás al top 10?')
 
 @section('content')
 <div class="rank-root">

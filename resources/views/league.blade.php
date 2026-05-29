@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'PokéTrivia — Liga Pokémon')
+@section('description', 'Supera la Liga Pokémon en modo roguelike. 5 etapas, vidas limitadas y comodines. ¿Eres capaz de llegar al Campeón? Gratis, sin registro.')
 
 @push('styles')
 <style>
