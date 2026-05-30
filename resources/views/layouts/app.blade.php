@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'PokéTrivia')</title>
 
+    {{-- Google Search Console --}}
+    <meta name="google-site-verification" content="WMWFOWGYeDA4LEDRCk8j5W23BZkw62sRw61q7fMnxL4">
+
     {{-- SEO --}}
     <meta name="description" content="@yield('description', 'PokéTrivia — El mejor trivia Pokémon gratuito. Adivina quién es ese Pokémon, supera la Liga y compite en el ranking. Sin anuncios, sin registro.')">
     <meta name="robots" content="index, follow">
