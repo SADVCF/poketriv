@@ -24,7 +24,8 @@
       "Bash(git push *)",
       "Bash(awk '{print $2}')",
       "Bash(mysql -u root -e \"SELECT COUNT\\(*\\) as total, SUM\\(description_en IS NOT NULL\\) as con_en, SUM\\(description_en IS NULL\\) as sin_en FROM poketriv.pokemon;\")",
-      "PowerShell(& \"C:\\\\laragon\\\\bin\\\\mysql\\\\mysql-8.0.30-winx64\\\\bin\\\\mysql.exe\" -u root -e \"SELECT pokedex_id, name FROM poketriv.pokemon WHERE description_en IS NULL;\")"
+      "PowerShell(& \"C:\\\\laragon\\\\bin\\\\mysql\\\\mysql-8.0.30-winx64\\\\bin\\\\mysql.exe\" -u root -e \"SELECT pokedex_id, name FROM poketriv.pokemon WHERE description_en IS NULL;\")",
+      "Bash(php -r \"echo file_get_contents\\('C:/laragon/www/poketriv/resources/views/layouts/app.blade.php'\\);\")"
     ]
   }
 }

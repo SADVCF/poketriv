@@ -209,7 +209,10 @@
             <a href="{{ route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es') }}"
                class="pkt-nav-link pkt-lang-btn"
                title="{{ app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español' }}">
-               {{ app()->getLocale() === 'es' ? '🇬🇧' : '🇪🇸' }}
+               <img src="{{ app()->getLocale() === 'es' ? 'https://flagcdn.com/20x15/gb.png' : 'https://flagcdn.com/20x15/es.png' }}"
+                    width="20" height="15"
+                    alt="{{ app()->getLocale() === 'es' ? 'EN' : 'ES' }}"
+                    style="display:inline-block;vertical-align:middle;border-radius:2px;">
             </a>
         </div>
     </div>
