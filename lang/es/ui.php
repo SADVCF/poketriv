@@ -73,7 +73,55 @@ return [
     'ranking_all'         => 'Todos',
     'play_now'            => 'Jugar ahora',
 
-    // League
+    // League page meta
     'league_page_title'   => 'PokéTrivia — Liga Pokémon',
     'league_description'  => 'Supera la Liga Pokémon en modo roguelike. 5 etapas, vidas limitadas y comodines. ¿Eres capaz de llegar al Campeón? Gratis, sin registro.',
+
+    // League — intro screen
+    'league_special_mode'   => 'MODO ESPECIAL',
+    'league_lives_label'    => '3 VIDAS',
+    'league_stages_label'   => '5 ETAPAS',
+    'league_q_types_label'  => 'TIPOS DE PREG.',
+    'league_start_btn'      => '⚔️ COMENZAR LIGA',
+    'league_back_home'      => '← Volver al inicio',
+    'league_stage_word'     => 'Etapa',
+
+    // League — states
+    'league_loading'        => 'PREPARANDO LIGA...',
+    'league_life_lost'      => '¡VIDA PERDIDA!',
+    'league_hud_stage'      => 'ETAPA',
+    'league_listen_again'   => '🔊 Escuchar de nuevo',
+    'league_blur_hint'      => '⏳ se enfoca al esperar — más puntos si respondes pronto',
+    'league_shield_blocked' => '🛡️ ¡ESCUDO ACTIVADO!',
+    'league_freeze_active'  => '❄️ TIEMPO CONGELADO',
+    'league_supereffective' => '→ ¡supereficaz!',
+
+    // League — wildcard overlay
+    'league_wildcard_title' => '¡COMODÍN!',
+    'league_pick_power'     => 'Elige un poder',
+    'league_streak_label'   => 'RACHA',
+
+    // Wildcard abilities
+    'wc_fifty_fifty_desc'   => 'Elimina 2 respuestas incorrectas',
+    'wc_reveal_type_name'   => 'Saber tipo',
+    'wc_reveal_type_desc'   => 'Revela el tipo del Pokémon',
+    'wc_freeze_name'        => 'Congelar tiempo',
+    'wc_freeze_desc'        => 'Detiene el cronómetro 10 segundos',
+    'wc_shield_name'        => 'Escudo',
+    'wc_shield_desc'        => 'Absorbe el siguiente fallo sin perder vida',
+
+    // League — results
+    'league_rank_label'     => 'Posición Liga',
+    'league_save_error_lbl' => 'Error al guardar',
+    'league_try_again'      => 'Intentar de nuevo',
+    'league_see_ranking'    => 'Ver ranking',
+    'league_completed_chip' => '⚔️ Liga completada',
+    'league_no_lives_lost'  => '❤️❤️❤️ Sin perder vidas',
+    'league_streak_chip'    => '🔥 Racha',
+    'league_result_master'  => '¡Maestro Pokémon!',
+    'league_result_great'   => '¡Liga superada!',
+    'league_result_ok'      => 'Bien luchado',
+    'league_result_bad'     => '¡Sigue entrenando!',
+    'league_stopped_at'     => 'Detenido en la',
+    'league_question_lc'    => 'pregunta',
 ];

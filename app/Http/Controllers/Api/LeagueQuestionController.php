@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Pokemon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 
 class LeagueQuestionController extends Controller
@@ -38,6 +39,27 @@ class LeagueQuestionController extends Controller
         'dark'     => 'Siniestro',
         'steel'    => 'Acero',
         'fairy'    => 'Hada',
+    ];
+
+    private const TYPE_TRANSLATIONS_EN = [
+        'normal'   => 'Normal',
+        'fire'     => 'Fire',
+        'water'    => 'Water',
+        'electric' => 'Electric',
+        'grass'    => 'Grass',
+        'ice'      => 'Ice',
+        'fighting' => 'Fighting',
+        'poison'   => 'Poison',
+        'ground'   => 'Ground',
+        'flying'   => 'Flying',
+        'psychic'  => 'Psychic',
+        'bug'      => 'Bug',
+        'rock'     => 'Rock',
+        'ghost'    => 'Ghost',
+        'dragon'   => 'Dragon',
+        'dark'     => 'Dark',
+        'steel'    => 'Steel',
+        'fairy'    => 'Fairy',
     ];
 
     // multiplier × 2 stored as integer (0=0×, 1=½×, 2=1×, 4=2×)
@@ -79,6 +101,34 @@ class LeagueQuestionController extends Controller
         'sp_def'  => 'Def. Esp.',
         'speed'   => 'Velocidad',
     ];
+
+    private const STAT_LABELS_EN = [
+        'hp'      => 'HP',
+        'attack'  => 'Attack',
+        'defense' => 'Defense',
+        'sp_atk'  => 'Sp. Atk',
+        'sp_def'  => 'Sp. Def',
+        'speed'   => 'Speed',
+    ];
+
+    /** Return locale-aware text: Spanish or English. */
+    private function txt(string $es, string $en): string
+    {
+        return App::getLocale() === 'en' ? $en : $es;
+    }
+
+    /** Return locale-aware type label. */
+    private function typeLabel(string $type): string
+    {
+        $map = App::getLocale() === 'en' ? self::TYPE_TRANSLATIONS_EN : self::TYPE_TRANSLATIONS;
+        return $map[$type] ?? ucfirst($type);
+    }
+
+    /** Return locale-aware stat labels array. */
+    private function statLabels(): array
+    {
+        return App::getLocale() === 'en' ? self::STAT_LABELS_EN : self::STAT_LABELS;
+    }
 
     public function generate(Request $request)
     {
@@ -173,6 +223,11 @@ class LeagueQuestionController extends Controller
         $pool,
         $allNames
     ): array {
+        $locale = App::getLocale();
+        $description = $locale === 'en'
+            ? ($pokemon->description_en ?? $pokemon->description)
+            : $pokemon->description;
+
         $base = [
             'question_type' => $qType,
             'artwork_url'   => $pokemon->artwork_url,
@@ -192,7 +247,7 @@ class LeagueQuestionController extends Controller
             'speed'         => $pokemon->speed,
             'weight'        => $pokemon->weight,
             'height'        => $pokemon->height,
-            'description'   => $pokemon->description,
+            'description'   => $description,
         ];
 
         return match ($qType) {
@@ -213,7 +268,7 @@ class LeagueQuestionController extends Controller
     private function buildSilhouette(array $base, Pokemon $pokemon, array $stage, $allNames): array
     {
         return array_merge($base, [
-            'question_text' => '¿Quién es este Pokémon?',
+            'question_text' => $this->txt('¿Quién es este Pokémon?', 'Who is this Pokémon?'),
             'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
         ]);
     }
@@ -221,7 +276,7 @@ class LeagueQuestionController extends Controller
     private function buildPixelated(array $base, Pokemon $pokemon, array $stage, $allNames): array
     {
         return array_merge($base, [
-            'question_text' => '¿Quién es este Pokémon?',
+            'question_text' => $this->txt('¿Quién es este Pokémon?', 'Who is this Pokémon?'),
             'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
         ]);
     }
@@ -243,7 +298,7 @@ class LeagueQuestionController extends Controller
             ->toArray();
 
         return array_merge($base, [
-            'question_text' => '¿De qué tipo es este Pokémon?',
+            'question_text' => $this->txt('¿De qué tipo es este Pokémon?', 'What type is this Pokémon?'),
             'answer'        => $correctType,
             'options'       => $options,
         ]);
@@ -302,15 +357,16 @@ class LeagueQuestionController extends Controller
             foreach ($pokemon->types as $defType) {
                 if (!isset($typeIndex[$defType])) continue;
                 if ($chart[$atkType][$typeIndex[$defType]] === 4) {
-                    $atkLabel = self::TYPE_TRANSLATIONS[$atkType] ?? ucfirst($atkType);
-                    $defLabel = self::TYPE_TRANSLATIONS[$defType] ?? ucfirst($defType);
-                    $typePairs[] = "{$atkLabel} > {$defLabel}";
+                    $typePairs[] = $this->typeLabel($atkType) . ' > ' . $this->typeLabel($defType);
                 }
             }
         }
 
         return array_merge($base, [
-            'question_text'  => "¿Quién vence a {$pokemon->display_name}?",
+            'question_text'  => $this->txt(
+                "¿Quién vence a {$pokemon->display_name}?",
+                "Who beats {$pokemon->display_name}?"
+            ),
             'answer'         => $correct->display_name,
             'options'        => $options,
             'reveal_name'    => true,
@@ -331,14 +387,18 @@ class LeagueQuestionController extends Controller
             'speed'   => $pokemon->speed,
         ];
 
+        $labels = $this->statLabels();
         $maxKey = array_keys($stats, max($stats))[0];
-        $correctLabel = self::STAT_LABELS[$maxKey];
+        $correctLabel = $labels[$maxKey];
 
-        $options = array_values(self::STAT_LABELS);
+        $options = array_values($labels);
         shuffle($options);
 
         return array_merge($base, [
-            'question_text' => '¿Cuál es la estadística base más alta de este Pokémon?',
+            'question_text' => $this->txt(
+                '¿Cuál es la estadística base más alta de este Pokémon?',
+                'What is the highest base stat of this Pokémon?'
+            ),
             'answer'        => $correctLabel,
             'options'       => $options,
         ]);
@@ -366,7 +426,7 @@ class LeagueQuestionController extends Controller
             ->shuffle()->values()->toArray();
 
         return array_merge($base, [
-            'question_text'  => '¿Cuál de estos Pokémon pesa más?',
+            'question_text'  => $this->txt('¿Cuál de estos Pokémon pesa más?', 'Which Pokémon weighs more?'),
             'answer'         => $heavier,
             'options'        => $options,
             'artwork_url_b'  => $pokemonB->artwork_url,
@@ -379,7 +439,7 @@ class LeagueQuestionController extends Controller
     private function buildBlurReveal(array $base, Pokemon $pokemon, array $stage, $allNames): array
     {
         return array_merge($base, [
-            'question_text' => '¿Quién se esconde tras el desenfoque?',
+            'question_text' => $this->txt('¿Quién se esconde tras el desenfoque?', 'Who is hiding behind the blur?'),
             'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
             'time_limit'    => max(8, $stage['timeLimit'] + 2),
         ]);
@@ -388,7 +448,7 @@ class LeagueQuestionController extends Controller
     private function buildCry(array $base, Pokemon $pokemon, array $stage, $allNames): array
     {
         return array_merge($base, [
-            'question_text' => '¿Qué Pokémon hace este grito?',
+            'question_text' => $this->txt('¿Qué Pokémon hace este grito?', 'Which Pokémon makes this cry?'),
             'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
             'time_limit'    => $stage['timeLimit'] + 3,
         ]);
@@ -397,7 +457,7 @@ class LeagueQuestionController extends Controller
     private function buildFlash(array $base, Pokemon $pokemon, array $stage, $allNames): array
     {
         return array_merge($base, [
-            'question_text' => '¿Qué Pokémon has visto?',
+            'question_text' => $this->txt('¿Qué Pokémon has visto?', 'Which Pokémon did you see?'),
             'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
         ]);
     }
@@ -431,8 +491,8 @@ class LeagueQuestionController extends Controller
 
         return array_merge($base, [
             'question_text'  => $askWeight
-                ? '¿Cuál pesa más?'
-                : '¿Cuál es más alto?',
+                ? $this->txt('¿Cuál pesa más?', 'Which one weighs more?')
+                : $this->txt('¿Cuál es más alto?', 'Which one is taller?'),
             'answer'         => $answer,
             'options'        => $options,
             'artwork_url_b'  => $pokemonB->artwork_url,
@@ -447,9 +507,9 @@ class LeagueQuestionController extends Controller
 
     private function buildDescription(array $base, Pokemon $pokemon, array $stage, $allNames): array
     {
+        // $base already contains the locale-aware description; pass it through
         return array_merge($base, [
-            'question_text' => '¿Qué Pokémon es?',
-            'description'   => $pokemon->description,
+            'question_text' => App::getLocale() === 'en' ? 'Which Pokémon is this?' : '¿Qué Pokémon es?',
             'options'       => $this->nameOptions($pokemon, $stage['options'], $allNames),
         ]);
     }

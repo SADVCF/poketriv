@@ -73,7 +73,55 @@ return [
     'ranking_all'         => 'All',
     'play_now'            => 'Play now',
 
-    // League
+    // League page meta
     'league_page_title'   => 'PokéTrivia — Pokémon League',
     'league_description'  => 'Conquer the Pokémon League in roguelike mode. 5 stages, limited lives and wildcards. Can you reach the Champion? Free, no login required.',
+
+    // League — intro screen
+    'league_special_mode'   => 'SPECIAL MODE',
+    'league_lives_label'    => '3 LIVES',
+    'league_stages_label'   => '5 STAGES',
+    'league_q_types_label'  => 'QUESTION TYPES',
+    'league_start_btn'      => '⚔️ START LEAGUE',
+    'league_back_home'      => '← Back to home',
+    'league_stage_word'     => 'Stage',
+
+    // League — states
+    'league_loading'        => 'PREPARING LEAGUE...',
+    'league_life_lost'      => 'LIFE LOST!',
+    'league_hud_stage'      => 'STAGE',
+    'league_listen_again'   => '🔊 Listen again',
+    'league_blur_hint'      => '⏳ focuses while waiting — more points if you answer soon',
+    'league_shield_blocked' => '🛡️ SHIELD ACTIVATED!',
+    'league_freeze_active'  => '❄️ TIME FROZEN',
+    'league_supereffective' => '→ super effective!',
+
+    // League — wildcard overlay
+    'league_wildcard_title' => 'WILDCARD!',
+    'league_pick_power'     => 'Pick a power',
+    'league_streak_label'   => 'STREAK',
+
+    // Wildcard abilities
+    'wc_fifty_fifty_desc'   => 'Removes 2 wrong answers',
+    'wc_reveal_type_name'   => 'Reveal type',
+    'wc_reveal_type_desc'   => "Reveals the Pokémon's type",
+    'wc_freeze_name'        => 'Freeze time',
+    'wc_freeze_desc'        => 'Stops the timer for 10 seconds',
+    'wc_shield_name'        => 'Shield',
+    'wc_shield_desc'        => 'Absorbs the next miss without losing a life',
+
+    // League — results
+    'league_rank_label'     => 'League Rank',
+    'league_save_error_lbl' => 'Save Error',
+    'league_try_again'      => 'Try again',
+    'league_see_ranking'    => 'See ranking',
+    'league_completed_chip' => '⚔️ League completed',
+    'league_no_lives_lost'  => '❤️❤️❤️ Perfect lives',
+    'league_streak_chip'    => '🔥 Streak',
+    'league_result_master'  => 'Pokémon Master!',
+    'league_result_great'   => 'League cleared!',
+    'league_result_ok'      => 'Well fought',
+    'league_result_bad'     => 'Keep training!',
+    'league_stopped_at'     => 'Stopped at',
+    'league_question_lc'    => 'question',
 ];

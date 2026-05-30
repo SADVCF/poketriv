@@ -188,14 +188,14 @@
                 <rect x="21" y="49" width="22" height="5" rx="2" fill="#ffcb05"/>
                 <rect x="17" y="54" width="30" height="5" rx="2" fill="#c8a000"/>
             </svg>
-            <p style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.3em;color:var(--text-muted);margin-bottom:4px">MODO ESPECIAL</p>
-            <h1 style="font-family:var(--font-display);font-weight:900;font-size:44px;letter-spacing:.04em;color:var(--yellow);line-height:1;animation:liga-glow 2s ease-in-out infinite">LIGA POKÉMON</h1>
+            <p style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.3em;color:var(--text-muted);margin-bottom:4px">{{ __('ui.league_special_mode') }}</p>
+            <h1 style="font-family:var(--font-display);font-weight:900;font-size:44px;letter-spacing:.04em;color:var(--yellow);line-height:1;animation:liga-glow 2s ease-in-out infinite">{{ __('ui.league_title') }}</h1>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
                 <div style="font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--yellow);line-height:1">50</div>
-                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">PREGUNTAS</div>
+                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">{{ __('ui.questions') }}</div>
             </div>
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
                 <div style="display:flex;justify-content:center;gap:3px;margin-bottom:3px">
@@ -203,31 +203,31 @@
                         <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#ff4757"/></svg>
                     </template>
                 </div>
-                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted)">3 VIDAS</div>
+                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted)">{{ __('ui.league_lives_label') }}</div>
             </div>
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
                 <div style="font-family:var(--font-display);font-size:18px;font-weight:900;color:#2ed573;line-height:1">I→IV</div>
-                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">5 ETAPAS</div>
+                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">{{ __('ui.league_stages_label') }}</div>
             </div>
             <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
                 <div style="font-family:var(--font-display);font-size:18px;font-weight:900;color:#a78bfa;line-height:1">8</div>
-                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">TIPOS DE PREG.</div>
+                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--text-muted);margin-top:3px">{{ __('ui.league_q_types_label') }}</div>
             </div>
         </div>
 
         <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:20px;line-height:1.8;text-align:center;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
-            <span style="color:#2ed573">Etapa I</span> Gen I-III · 15s ·&nbsp;
-            <span style="color:#ffcb05">Etapa II</span> Gen I-V · 12s<br>
-            <span style="color:#ff7043">Etapa III</span> Gen I-VII · 10s ·&nbsp;
-            <span style="color:#ff4757">Etapa IV</span> Gen I-IX · 8s
+            <span style="color:#2ed573">{{ __('ui.league_stage_word') }} I</span> Gen I-III · 15s ·&nbsp;
+            <span style="color:#ffcb05">{{ __('ui.league_stage_word') }} II</span> Gen I-V · 12s<br>
+            <span style="color:#ff7043">{{ __('ui.league_stage_word') }} III</span> Gen I-VII · 10s ·&nbsp;
+            <span style="color:#ff4757">{{ __('ui.league_stage_word') }} IV</span> Gen I-IX · 8s
         </div>
 
 
 
         <button @click="startLeague()" style="width:100%;padding:15px;background:var(--yellow);color:#06070d;border:none;border-radius:8px;font-family:var(--font-display);font-size:22px;font-weight:900;letter-spacing:.1em;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.4),0 4px 22px rgba(255,203,5,.3);transition:all .12s;margin-bottom:10px;user-select:none;-webkit-user-select:none">
-            ⚔️ COMENZAR LIGA
+            {{ __('ui.league_start_btn') }}
         </button>
-        <a href="{{ route('home') }}" style="display:block;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text-faint);text-decoration:none;letter-spacing:.05em">← Volver al inicio</a>
+        <a href="{{ route('home') }}" style="display:block;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text-faint);text-decoration:none;letter-spacing:.05em">{{ __('ui.league_back_home') }}</a>
     </div>
 </div>
 
@@ -239,17 +239,17 @@
         <line x1="6" y1="50" x2="94" y2="50" stroke="rgba(255,255,255,.2)" stroke-width="5"/>
         <circle cx="50" cy="50" r="10" fill="#07080f" stroke="rgba(255,203,5,.4)" stroke-width="4"/>
     </svg>
-    <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:.1em">PREPARANDO LIGA...</p>
+    <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:.1em">{{ __('ui.league_loading') }}</p>
 </div>
 
 {{-- ── ERROR ──────────────────────────────────────────────────────── --}}
 <div x-show="phase === 'error'" class="state-center">
     <div style="font-size:40px;margin-bottom:12px">⚠️</div>
-    <p style="font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:6px">Error de carga</p>
+    <p style="font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:6px">{{ __('ui.load_error') }}</p>
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px" x-text="errorMsg"></p>
     <div style="display:flex;gap:10px">
-        <button @click="startLeague()" class="btn-yellow" style="min-width:120px">Reintentar</button>
-        <a href="{{ route('home') }}" class="btn-ghost" style="min-width:80px">Inicio</a>
+        <button @click="startLeague()" class="btn-yellow" style="min-width:120px">{{ __('ui.retry') }}</button>
+        <a href="{{ route('home') }}" class="btn-ghost" style="min-width:80px">{{ __('ui.home') }}</a>
     </div>
 </div>
 
@@ -262,7 +262,7 @@
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="#ff4757" stroke-width="2"/>
             <line x1="7" y1="7" x2="17" y2="17" stroke="#ff4757" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
-        <p style="font-family:var(--font-display);font-size:24px;font-weight:900;color:#ff4757;margin-top:10px;letter-spacing:.05em">¡VIDA PERDIDA!</p>
+        <p style="font-family:var(--font-display);font-size:24px;font-weight:900;color:#ff4757;margin-top:10px;letter-spacing:.05em">{{ __('ui.league_life_lost') }}</p>
         <div style="display:flex;gap:8px;margin-top:10px">
             <template x-for="i in 3" :key="i">
                 <svg width="26" height="26" viewBox="0 0 24 24">
@@ -292,13 +292,13 @@
             </div>
             <div x-show="current" :class="'stage-badge-' + (current?.stage ?? 1)"
                  style="display:inline-block;border:1px solid;border-radius:3px;padding:2px 7px;font-family:var(--font-mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-align:center"
-                 x-text="'ETAPA ' + (current?.stage ?? 1)"></div>
+                 x-text="'{{ __('ui.league_hud_stage') }} ' + (current?.stage ?? 1)"></div>
         </div>
 
         {{-- Progress --}}
         <div class="hud-left">
             <div class="hud-q-label">
-                PREGUNTA
+                {{ __('ui.question') }}
                 <span class="hud-q-num" x-text="currentIndex + 1"></span>
                 <span style="color:var(--text-faint)"> / 50</span>
             </div>
@@ -381,7 +381,7 @@
                            color:var(--yellow);font-family:var(--font-mono);font-size:12px;font-weight:700;
                            letter-spacing:.06em;cursor:pointer;transition:all .12s"
                     :style="selectedAnswer !== null ? 'opacity:.4;cursor:default' : ''">
-                🔊 Escuchar de nuevo
+                {{ __('ui.league_listen_again') }}
             </button>
         </div>
 
@@ -398,7 +398,7 @@
             >
             <div x-show="current?.question_type === 'blur_reveal' && !revealed"
                  style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--text-faint);letter-spacing:.08em;background:rgba(0,0,0,.55);padding:4px 10px;border-radius:6px;backdrop-filter:blur(4px);pointer-events:none">
-                ⏳ se enfoca al esperar — más puntos si respondes pronto
+                {{ __('ui.league_blur_hint') }}
             </div>
             <div x-show="current?.question_type === 'flash' && !flashVisible"
                  style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg-card);border-radius:10px;font-size:40px;opacity:.5">
@@ -423,13 +423,13 @@
         {{-- Freeze indicator --}}
         <div x-show="freezeActive" x-transition
              style="margin:0 16px 6px;padding:6px 10px;border-radius:7px;background:rgba(150,217,214,.1);border:1px solid rgba(150,217,214,.35);font-family:var(--font-mono);font-size:11px;font-weight:700;color:#96D9D6;text-align:center;letter-spacing:.05em">
-            ❄️ TIEMPO CONGELADO
+            {{ __('ui.league_freeze_active') }}
         </div>
 
         {{-- Shield blocked flash --}}
         <div x-show="shieldBlocked" x-transition
              style="margin:0 16px 6px;padding:6px 10px;border-radius:7px;background:rgba(46,213,115,.12);border:1px solid rgba(46,213,115,.4);font-family:var(--font-mono);font-size:11px;font-weight:700;color:#2ed573;text-align:center;letter-spacing:.05em">
-            🛡️ ¡ESCUDO ACTIVADO!
+            {{ __('ui.league_shield_blocked') }}
         </div>
 
         {{-- HP bar timer --}}
@@ -483,7 +483,7 @@
             </div>
             <div style="color:var(--text-muted);font-size:9px;margin-top:2px">
                 <span x-text="current?.type_explanation ?? ''"></span>
-                <span style="color:#2ed573"> → ¡supereficaz!</span>
+                <span style="color:#2ed573"> {{ __('ui.league_supereffective') }}</span>
             </div>
         </div>
 
@@ -537,8 +537,8 @@
         <div class="wildcard-panel">
             <div style="text-align:center;margin-bottom:18px">
                 <div style="font-size:28px;margin-bottom:6px">🎯</div>
-                <p style="font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--yellow);letter-spacing:.06em;line-height:1">¡COMODÍN!</p>
-                <p style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:.1em;margin-top:5px">RACHA ×<span x-text="streak"></span> — Elige un poder</p>
+                <p style="font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--yellow);letter-spacing:.06em;line-height:1">{{ __('ui.league_wildcard_title') }}</p>
+                <p style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:.1em;margin-top:5px">{{ __('ui.league_streak_label') }} ×<span x-text="streak"></span> — {{ __('ui.league_pick_power') }}</p>
             </div>
             <div style="display:flex;flex-direction:column;gap:10px">
                 <template x-for="wc in wildcardChoices" :key="wc.id">
@@ -564,40 +564,40 @@
         <div class="result-emoji" x-html="resultEmoji"></div>
         <h2 class="result-title" style="color:#ff4757">GAME OVER</h2>
         <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:5px">
-            Detenido en la <span style="color:var(--yellow)" x-text="'Etapa ' + maxStageReached"></span>
-            &nbsp;·&nbsp; pregunta <span x-text="currentIndex + 1"></span>/50
+            {{ __('ui.league_stopped_at') }} <span style="color:var(--yellow)" x-text="'{{ __('ui.league_stage_word') }} ' + maxStageReached"></span>
+            &nbsp;·&nbsp; {{ __('ui.league_question_lc') }} <span x-text="currentIndex + 1"></span>/50
         </p>
     </div>
     <div class="result-stats">
         <div class="stat-card">
             <div class="stat-val" style="color:var(--yellow)" x-text="score.toLocaleString()"></div>
-            <div class="stat-lbl">Puntuación</div>
+            <div class="stat-lbl">{{ __('ui.stat_score') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:var(--green)">
                 <span x-text="correctCount"></span><span style="color:var(--text-faint);font-size:18px">/</span><span x-text="currentIndex + 1" style="font-size:18px"></span>
             </div>
-            <div class="stat-lbl">Aciertos</div>
+            <div class="stat-lbl">{{ __('ui.stat_correct') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:#a78bfa" x-text="formatTime(totalTime)"></div>
-            <div class="stat-lbl">Tiempo</div>
+            <div class="stat-lbl">{{ __('ui.stat_time') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:var(--yellow)">
                 <span style="font-size:18px;opacity:.4">#</span><span x-text="rank ?? '—'"></span>
             </div>
-            <div class="stat-lbl">Posición Liga</div>
+            <div class="stat-lbl">{{ __('ui.league_rank_label') }}</div>
         </div>
         <div class="stat-card" x-show="saveError">
             <div class="stat-val" style="color:#ff4757;font-size:11px" x-text="saveError"></div>
-            <div class="stat-lbl">Error al guardar</div>
+            <div class="stat-lbl">{{ __('ui.league_save_error_lbl') }}</div>
         </div>
     </div>
     <div class="result-actions">
-        <button @click="restartLeague()" class="btn-yellow">Intentar de nuevo</button>
-        <a href="{{ route('ranking', ['difficulty' => 'league']) }}" class="btn-ghost">Ver ranking</a>
-        <a href="{{ route('home') }}" class="btn-ghost">Inicio</a>
+        <button @click="restartLeague()" class="btn-yellow">{{ __('ui.league_try_again') }}</button>
+        <a href="{{ route('ranking', ['difficulty' => 'league']) }}" class="btn-ghost">{{ __('ui.league_see_ranking') }}</a>
+        <a href="{{ route('home') }}" class="btn-ghost">{{ __('ui.home') }}</a>
     </div>
 </div>
 
@@ -620,38 +620,38 @@
     <div class="result-stats">
         <div class="stat-card">
             <div class="stat-val" style="color:var(--yellow)" x-text="score.toLocaleString()"></div>
-            <div class="stat-lbl">Puntuación</div>
+            <div class="stat-lbl">{{ __('ui.stat_score') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:var(--green)">
                 <span x-text="correctCount"></span><span style="color:var(--text-faint);font-size:18px">/50</span>
             </div>
-            <div class="stat-lbl">Aciertos</div>
+            <div class="stat-lbl">{{ __('ui.stat_correct') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:#a78bfa" x-text="formatTime(totalTime)"></div>
-            <div class="stat-lbl">Tiempo</div>
+            <div class="stat-lbl">{{ __('ui.stat_time') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:var(--yellow)">
                 <span style="font-size:18px;opacity:.4">#</span><span x-text="rank ?? '—'"></span>
             </div>
-            <div class="stat-lbl">Posición Liga</div>
+            <div class="stat-lbl">{{ __('ui.league_rank_label') }}</div>
         </div>
         <div class="stat-card" x-show="saveError">
             <div class="stat-val" style="color:#ff4757;font-size:11px" x-text="saveError"></div>
-            <div class="stat-lbl">Error al guardar</div>
+            <div class="stat-lbl">{{ __('ui.league_save_error_lbl') }}</div>
         </div>
     </div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-        <span x-show="maxStreak >= 3" class="chip chip--yellow">🔥 Racha <span x-text="maxStreak"></span></span>
-        <span class="chip">⚔️ Liga completada</span>
-        <span x-show="lives === 3" class="chip chip--green">❤️❤️❤️ Sin perder vidas</span>
+        <span x-show="maxStreak >= 3" class="chip chip--yellow">{{ __('ui.league_streak_chip') }} <span x-text="maxStreak"></span></span>
+        <span class="chip">{{ __('ui.league_completed_chip') }}</span>
+        <span x-show="lives === 3" class="chip chip--green">{{ __('ui.league_no_lives_lost') }}</span>
     </div>
     <div class="result-actions">
-        <button @click="restartLeague()" class="btn-yellow">Jugar de nuevo</button>
-        <a href="{{ route('ranking', ['difficulty' => 'league']) }}" class="btn-ghost">Ver ranking</a>
-        <a href="{{ route('home') }}" class="btn-ghost">Inicio</a>
+        <button @click="restartLeague()" class="btn-yellow">{{ __('ui.play_again') }}</button>
+        <a href="{{ route('ranking', ['difficulty' => 'league']) }}" class="btn-ghost">{{ __('ui.league_see_ranking') }}</a>
+        <a href="{{ route('home') }}" class="btn-ghost">{{ __('ui.home') }}</a>
     </div>
 </div>
 
@@ -661,7 +661,7 @@
         <div class="modal-rings">
             <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="var(--yellow)" stroke-width="2" opacity=".3"/><circle cx="24" cy="24" r="16" fill="none" stroke="var(--yellow)" stroke-width="1.5" opacity=".5"/></svg>
         </div>
-        <p class="modal-label">TU NOMBRE DE ENTRENADOR</p>
+        <p class="modal-label">{{ __('ui.trainer_name') }}</p>
         <input x-model="playerName" type="text" maxlength="15"
                x-ref="nameInput"
                placeholder="-- --"
@@ -672,8 +672,8 @@
                spellcheck="false"
                @keydown.enter="submitName()"
         >
-        <button @click="submitName()" class="modal-btn">GUARDAR</button>
-        <p class="modal-hint">Letras, números y espacios</p>
+        <button @click="submitName()" class="modal-btn">{{ __('ui.save') }}</button>
+        <p class="modal-hint">{{ __('ui.name_hint') }}</p>
     </div>
 </div>
 
@@ -1196,7 +1196,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
 
         get resultTitle() {
             const p = this.correctCount / 50;
-            return p >= .9 ? '¡Maestro Pokémon!' : p >= .7 ? '¡Liga superada!' : p >= .5 ? 'Bien luchado' : '¡Sigue entrenando!';
+            return p >= .9 ? '{{ __('ui.league_result_master') }}' : p >= .7 ? '{{ __('ui.league_result_great') }}' : p >= .5 ? '{{ __('ui.league_result_ok') }}' : '{{ __('ui.league_result_bad') }}';
         },
 
         startLeague() {
@@ -1218,7 +1218,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                 });
                 const data = await res.json();
                 if (!data.questions || data.questions.length === 0) {
-                    this.errorMsg = data.error || 'Sin preguntas';
+                    this.errorMsg = data.error || '{{ __('ui.no_questions') }}';
                     this.phase = 'error'; return;
                 }
                 this.questions  = data.questions;
@@ -1231,7 +1231,7 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
                 this.phase = 'playing';
                 this.startTimer();
             } catch(e) {
-                this.errorMsg = 'Error de conexión';
+                this.errorMsg = '{{ __('ui.connection_error') }}';
                 this.phase = 'error';
             }
         },
@@ -1467,10 +1467,10 @@ function leagueGame({ playerName, difficulty = 'hard' }) {
         // ── Comodines ──────────────────────────────────────────────
         pickWildcardChoices() {
 			const pool = [
-				{ id:'fifty_fifty',  name:'50/50',           desc:'Elimina 2 respuestas incorrectas',          icon:'⚡', color:'#ffcb05' },
-				{ id:'reveal_type',  name:'Saber tipo',      desc:'Revela el tipo del Pokémon',                icon:'🔍', color:'#a78bfa' },
-				{ id:'freeze_time',  name:'Congelar tiempo', desc:'Detiene el cronómetro 10 segundos',         icon:'❄️', color:'#96D9D6' },
-				{ id:'shield',       name:'Escudo',          desc:'Absorbe el siguiente fallo sin perder vida',icon:'🛡️', color:'#2ed573' },
+				{ id:'fifty_fifty',  name:'50/50',                              desc:'{{ __('ui.wc_fifty_fifty_desc') }}',  icon:'⚡', color:'#ffcb05' },
+				{ id:'reveal_type',  name:'{{ __('ui.wc_reveal_type_name') }}', desc:'{{ __('ui.wc_reveal_type_desc') }}',  icon:'🔍', color:'#a78bfa' },
+				{ id:'freeze_time',  name:'{{ __('ui.wc_freeze_name') }}',      desc:'{{ __('ui.wc_freeze_desc') }}',       icon:'❄️', color:'#96D9D6' },
+				{ id:'shield',       name:'{{ __('ui.wc_shield_name') }}',      desc:'{{ __('ui.wc_shield_desc') }}',       icon:'🛡️', color:'#2ed573' },
 			];
 			const inventoryIds = new Set(this.wildcardInventory.map(w => w.id));
 			const available = pool.filter(w => {

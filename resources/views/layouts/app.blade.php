@@ -209,7 +209,7 @@
             <a href="{{ route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es') }}"
                class="pkt-nav-link pkt-lang-btn"
                title="{{ app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español' }}">
-               {{ __('ui.nav_lang') }}
+               {{ app()->getLocale() === 'es' ? '🇬🇧' : '🇪🇸' }}
             </a>
         </div>
     </div>
