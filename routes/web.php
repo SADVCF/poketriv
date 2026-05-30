@@ -6,6 +6,13 @@ use App\Http\Controllers\RankingController;
 use App\Http\Controllers\LeagueController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['es', 'en'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/game', [GameController::class, 'index'])->name('game');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');

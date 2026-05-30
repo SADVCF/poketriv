@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'PokéTrivia — Jugando')
-@section('description', 'Estás jugando a PokéTrivia. Responde preguntas de Pokémon a contrarreloj y sube en el ranking global.')
+@section('title', __('ui.game_title'))
+@section('description', __('ui.game_description'))
 
 @push('styles')
 <style>
@@ -156,18 +156,18 @@
         <circle cx="50" cy="50" r="10" fill="#07080f" stroke="rgba(255,203,5,.4)" stroke-width="4"/>
     </svg>
     <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:.1em;">
-        CARGANDO POKÉMON...
+        {{ __('ui.loading') }}
     </p>
 </div>
 
 {{-- ── ERROR ──────────────────────────────────────────────────────── --}}
 <div x-show="phase === 'error'" class="state-center">
     <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
-    <p style="font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:6px;">Error de carga</p>
+    <p style="font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:6px;">{{ __('ui.load_error') }}</p>
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;" x-text="errorMsg"></p>
     <div style="display:flex;gap:10px;">
-        <button @click="retryLoad()" class="btn-yellow">Reintentar</button>
-        <a href="/" class="btn-ghost">Inicio</a>
+        <button @click="retryLoad()" class="btn-yellow">{{ __('ui.retry') }}</button>
+        <a href="/" class="btn-ghost">{{ __('ui.home') }}</a>
     </div>
 </div>
 
@@ -179,7 +179,7 @@
     <div class="hud">
         <div class="hud-left">
             <div class="hud-q-label">
-                PREGUNTA
+                {{ __('ui.question') }}
                 <span class="hud-q-num" x-text="currentIndex + 1"></span>
                 <span style="color:var(--text-faint)"> / </span>
                 <span x-text="questions.length"></span>
@@ -193,11 +193,11 @@
             <div x-show="streak >= 2" class="combo-badge" :class="streak >= 5 ? 'combo-hot' : ''">
                 <span x-show="streak >= 5" style="font-size:14px;">🔥</span>
                 <span style="font-family:var(--font-mono);font-weight:700;">×<span x-text="streak"></span></span>
-                <span style="font-size:9px;letter-spacing:.1em;opacity:.7;">COMBO</span>
+                <span style="font-size:9px;letter-spacing:.1em;opacity:.7;">{{ __('ui.streak') }}</span>
             </div>
             {{-- Score --}}
             <div class="score-block">
-                <div class="score-label">SCORE</div>
+                <div class="score-label">{{ __('ui.score') }}</div>
                 <div class="score-value" :class="scoreFlash ? 'score-bump' : ''" x-text="score.toLocaleString()"></div>
             </div>
         </div>
@@ -286,23 +286,23 @@
     <div class="result-stats">
         <div class="stat-card">
             <div class="stat-val" style="color:var(--yellow)" x-text="score.toLocaleString()"></div>
-            <div class="stat-lbl">Puntuación</div>
+            <div class="stat-lbl">{{ __('ui.stat_score') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:var(--green)">
                 <span x-text="correctCount"></span><span style="color:var(--text-faint);font-size:18px;">/</span><span x-text="questions.length" style="font-size:18px;"></span>
             </div>
-            <div class="stat-lbl">Aciertos</div>
+            <div class="stat-lbl">{{ __('ui.stat_correct') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:#a78bfa" x-text="formatTime(totalTime)"></div>
-            <div class="stat-lbl">Tiempo</div>
+            <div class="stat-lbl">{{ __('ui.stat_time') }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-val" style="color:var(--yellow)">
                 <span style="font-size:18px;opacity:.4">#</span><span x-text="rank ?? '—'"></span>
             </div>
-            <div class="stat-lbl">Posición</div>
+            <div class="stat-lbl">{{ __('ui.stat_rank') }}</div>
         </div>
     </div>
 
@@ -313,8 +313,8 @@
     </div>
 
     <div class="result-actions">
-        <button @click="restartGame()" class="btn-yellow">Jugar de nuevo</button>
-        <a href="{{ route('ranking') }}" class="btn-ghost">Ver ranking →</a>
+        <button @click="restartGame()" class="btn-yellow">{{ __('ui.play_again') }}</button>
+        <a href="{{ route('ranking') }}" class="btn-ghost">{{ __('ui.view_ranking') }}</a>
     </div>
 </div>
 
@@ -324,15 +324,15 @@
         <div class="modal-rings">
             <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="none" stroke="var(--yellow)" stroke-width="2" opacity=".3"/><circle cx="24" cy="24" r="16" fill="none" stroke="var(--yellow)" stroke-width="1.5" opacity=".5"/></svg>
         </div>
-        <p class="modal-label">TU NOMBRE DE ENTRENADOR</p>
+        <p class="modal-label">{{ __('ui.trainer_name') }}</p>
         <input x-model="playerName" type="text" maxlength="15"
                x-ref="nameInput"
                placeholder="-- --"
                class="modal-input"
                @keydown.enter="submitName()"
         >
-        <button @click="submitName()" class="modal-btn">GUARDAR</button>
-        <p class="modal-hint">Letras, números y espacios</p>
+        <button @click="submitName()" class="modal-btn">{{ __('ui.save') }}</button>
+        <p class="modal-hint">{{ __('ui.name_hint') }}</p>
     </div>
 </div>
 
@@ -727,7 +727,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
         },
         get resultTitle() {
             const p = this.questions.length > 0 ? this.correctCount / this.questions.length : 0;
-            return p >= .9 ? '¡Maestro Pokémon!' : p >= .7 ? '¡Muy bien!' : p >= .5 ? 'Nada mal' : 'Necesitas entrenar más';
+            return p >= .9 ? '{{ __('ui.result_master') }}' : p >= .7 ? '{{ __('ui.result_great') }}' : p >= .5 ? '{{ __('ui.result_ok') }}' : '{{ __('ui.result_bad') }}';
         },
         get genMultiplier() {
             return 1 + (this.maxGen - 1) * 0.15;
@@ -736,7 +736,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
             const pokeball = `<svg width="15" height="15" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#fff"/><path d="M.5 10A9.5 9.5 0 0 1 19.5 10Z" fill="#e63232"/><line x1=".5" y1="10" x2="19.5" y2="10" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="9.5" fill="none" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="3.1" fill="#fff" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="1.3" fill="#1a1a1a"/></svg>`;
             const greatball = `<svg width="15" height="15" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#fff"/><path d="M.5 10A9.5 9.5 0 0 1 19.5 10Z" fill="#2563eb"/><path d="M2.2 8.8L5.8 4.2L5.8 8.8Z" fill="#e63232"/><path d="M17.8 8.8L14.2 4.2L14.2 8.8Z" fill="#e63232"/><line x1=".5" y1="10" x2="19.5" y2="10" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="9.5" fill="none" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="3.1" fill="#fff" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="1.3" fill="#1a1a1a"/></svg>`;
             const ultraball = `<svg width="15" height="15" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#fff"/><path d="M.5 10A9.5 9.5 0 0 1 19.5 10Z" fill="#1a1a1a"/><path d="M1 7A9.5 9.5 0 0 1 19 7L19 9A9.5 9.5 0 0 0 1 9Z" fill="#f7c823"/><line x1=".5" y1="10" x2="19.5" y2="10" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="9.5" fill="none" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="3.1" fill="#fff" stroke="#1a1a1a" stroke-width="1.3"/><circle cx="10" cy="10" r="1.3" fill="#f7c823"/></svg>`;
-            const labels = { easy: [pokeball,'Fácil'], medium: [greatball,'Medio'], hard: [ultraball,'Difícil'] };
+            const labels = { easy: [pokeball,'{{ __('ui.diff_easy') }}'], medium: [greatball,'{{ __('ui.diff_medium') }}'], hard: [ultraball,'{{ __('ui.diff_hard') }}'] };
             const [icon, text] = labels[this.difficulty] ?? ['',''];
             return icon + text;
         },
@@ -753,7 +753,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
                 });
                 const data = await res.json();
                 const qs = data.questions ?? (Array.isArray(data) ? data : null);
-                if (!qs || qs.length === 0) { this.errorMsg = data.error || 'Sin preguntas'; this.phase = 'error'; return; }
+                if (!qs || qs.length === 0) { this.errorMsg = data.error || '{{ __('ui.no_questions') }}'; this.phase = 'error'; return; }
                 this.questions = qs;
                 this.gameToken = data.token ?? '';
                 this.gameStartTime = Date.now();
@@ -762,7 +762,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
                 this.imgLoaded = false;
                 this.phase = 'playing';
                 this.startTimer();
-            } catch(e) { this.errorMsg = 'Error de conexión'; this.phase = 'error'; }
+            } catch(e) { this.errorMsg = '{{ __('ui.connection_error') }}'; this.phase = 'error'; }
         },
 
         async retryLoad() { await this.loadQuestions(); },
@@ -845,7 +845,7 @@ function pokeGame({ playerName, difficulty, timePerQuestion, optionCount, maxGen
                 const res = await fetch('/api/game/score', {
                     method: 'POST',
                     headers: { 'Content-Type':'application/json', 'Accept':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-                    body: JSON.stringify({ player_name:this.playerName.trim() || 'Entrenador', score:this.score, correct_answers:this.correctCount, total_questions:this.questions.length, time_seconds:this.totalTime, difficulty:this.difficulty, max_generation:this.maxGen, max_streak:this.maxStreak, token:this.gameToken }),
+                    body: JSON.stringify({ player_name:this.playerName.trim() || '{{ __('ui.default_trainer') }}', score:this.score, correct_answers:this.correctCount, total_questions:this.questions.length, time_seconds:this.totalTime, difficulty:this.difficulty, max_generation:this.maxGen, max_streak:this.maxStreak, token:this.gameToken }),
                 });
                 const data = await res.json();
                 this.rank = data.rank;

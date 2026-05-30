@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
     <meta property="og:title"       content="@yield('title', 'PokéTrivia')">
     <meta property="og:description" content="@yield('description', 'El mejor trivia Pokémon gratuito. Adivina quién es ese Pokémon, supera la Liga y compite en el ranking.')">
     <meta property="og:image"       content="{{ asset('og-image.png') }}">
-    <meta property="og:locale"      content="es_ES">
+    <meta property="og:locale"      content="{{ app()->getLocale() === 'en' ? 'en_US' : 'es_ES' }}">
 
     {{-- Twitter Card --}}
     <meta name="twitter:card"        content="summary_large_image">
@@ -171,6 +171,15 @@
         }
         .pkt-nav-link:hover   { color: var(--text); background: rgba(255,255,255,.05); }
         .pkt-nav-link.is-active { color: var(--yellow); }
+        .pkt-lang-btn {
+            border: 1px solid var(--border-mid);
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .06em;
+        }
+        .pkt-lang-btn:hover { border-color: var(--yellow); color: var(--yellow); background: rgba(255,203,5,.05); }
 
         /* ── Scrollbar ───────────────────────────────────────────────── */
         ::-webkit-scrollbar { width: 5px; }
@@ -195,8 +204,13 @@
             POKÉ<em>TRIVIA</em>
         </a>
         <div class="pkt-nav-links">
-            <a href="{{ route('home') }}"    class="pkt-nav-link {{ request()->routeIs('home')    ? 'is-active' : '' }}">Inicio</a>
-            <a href="{{ route('ranking') }}" class="pkt-nav-link {{ request()->routeIs('ranking') ? 'is-active' : '' }}">Ranking</a>
+            <a href="{{ route('home') }}"    class="pkt-nav-link {{ request()->routeIs('home')    ? 'is-active' : '' }}">{{ __('ui.nav_home') }}</a>
+            <a href="{{ route('ranking') }}" class="pkt-nav-link {{ request()->routeIs('ranking') ? 'is-active' : '' }}">{{ __('ui.nav_ranking') }}</a>
+            <a href="{{ route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es') }}"
+               class="pkt-nav-link pkt-lang-btn"
+               title="{{ app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español' }}">
+               {{ __('ui.nav_lang') }}
+            </a>
         </div>
     </div>
 </nav>

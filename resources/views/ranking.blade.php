@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'PokéTrivia — Ranking Global')
-@section('description', 'Ranking global de PokéTrivia. Compite contra jugadores de todo el mundo y demuestra quién sabe más de Pokémon. ¿Llegarás al top 10?')
+@section('title', __('ui.ranking_title'))
+@section('description', __('ui.ranking_description'))
 
 @section('content')
 <div class="rank-root">
@@ -23,7 +23,7 @@
                 $ballUltra = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M9 1C4.582 1 1 4.582 1 9s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><path d="M1 9a8 8 0 0 1 16 0" fill="#222"/><path d="M5 7.5h8M7 9h4M5 10.5h6" stroke="#FFD600" stroke-width="1.2" stroke-linecap="round"/><path d="M1 9h16" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="2.8" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.8"/><circle cx="9" cy="9" r="1.4" fill="#ccc" stroke="#1a1a2e" stroke-width="0.5"/></svg>';
                 $swordIcon = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M3 3l9 12M15 3L7 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 12h3M10 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3h.01M15 3h.01M12 15h.01M6 15h.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
                 $ballMap = ['easy' => $ballPoke, 'medium' => $ballGreat, 'hard' => $ballUltra, 'league' => $swordIcon];
-                $filterLabels = ['all' => ['Todos'], 'easy' => ['Fácil', $ballPoke], 'medium' => ['Medio', $ballGreat], 'hard' => ['Difícil', $ballUltra], 'league' => ['Liga', $swordIcon]];
+                $filterLabels = ['all' => [__('ui.ranking_all')], 'easy' => [__('ui.diff_easy'), $ballPoke], 'medium' => [__('ui.diff_medium'), $ballGreat], 'hard' => [__('ui.diff_hard'), $ballUltra], 'league' => [__('ui.ranking_league'), $swordIcon]];
             @endphp
             @foreach($filterLabels as $val => $item)
                 <a href="{{ route('ranking', ['difficulty' => $val, 'max_generation' => $maxGen, 'page' => null]) }}"
@@ -85,24 +85,12 @@
             @endif
         </div>
         <p style="font-family:var(--font-display);font-size:24px;font-weight:800;margin-bottom:6px;">
-            @if($difficulty === 'league')
-            Sin entrenadores aún
-            @else
-            Sin puntuaciones aún
-            @endif
+            {{ __('ui.rank_empty') }}
         </p>
         <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px;">
-            @if($difficulty === 'league')
-            Supera la Liga para aparecer aquí
-            @else
-            Sé el primero en aparecer aquí
-            @endif
+            {{ __('ui.rank_empty') }}
         </p>
-        @if($difficulty === 'league')
-            <a href="{{ route('home') }}" class="btn-yellow-sm">Jugar ahora</a>
-        @else
-            <a href="{{ route('home') }}" class="btn-yellow-sm">Jugar ahora</a>
-        @endif
+        <a href="{{ route('home') }}" class="btn-yellow-sm">{{ __('ui.play_now') }}</a>
     </div>
 
     @else
@@ -135,7 +123,7 @@
                 <div class="podium-medal">{!! $trophySilver !!}</div>
                 <div class="podium-name" title="{{ $top3[1]->player_name }}">{{ $top3[1]->player_name }}</div>
                 <div class="podium-score">{{ number_format($top3[1]->score) }}</div>
-                <div class="podium-sub">{{ $top3[1]->correct_answers }}/{{ $top3[1]->total_questions }} aciertos</div>
+                <div class="podium-sub">{{ $top3[1]->correct_answers }}/{{ $top3[1]->total_questions }} {{ __('ui.rank_correct') }}</div>
                 @if(($top3[1]->max_streak ?? 0) >= 3)
                     <div class="podium-streak">🔥 ×{{ $top3[1]->max_streak }}</div>
                 @endif
@@ -149,7 +137,7 @@
                 <div class="podium-medal">{!! $trophyGold !!}</div>
                 <div class="podium-name" style="font-size:16px" title="{{ $top3[0]->player_name }}">{{ $top3[0]->player_name }}</div>
                 <div class="podium-score podium-score--1">{{ number_format($top3[0]->score) }}</div>
-                <div class="podium-sub">{{ $top3[0]->correct_answers }}/{{ $top3[0]->total_questions }} aciertos</div>
+                <div class="podium-sub">{{ $top3[0]->correct_answers }}/{{ $top3[0]->total_questions }} {{ __('ui.rank_correct') }}</div>
                 @if(($top3[0]->max_streak ?? 0) >= 3)
                     <div class="podium-streak" style="color:var(--yellow)">🔥 ×{{ $top3[0]->max_streak }}</div>
                 @endif
@@ -163,7 +151,7 @@
                 <div class="podium-medal">{!! $trophyBronze !!}</div>
                 <div class="podium-name" title="{{ $top3[2]->player_name }}">{{ $top3[2]->player_name }}</div>
                 <div class="podium-score">{{ number_format($top3[2]->score) }}</div>
-                <div class="podium-sub">{{ $top3[2]->correct_answers }}/{{ $top3[2]->total_questions }} aciertos</div>
+                <div class="podium-sub">{{ $top3[2]->correct_answers }}/{{ $top3[2]->total_questions }} {{ __('ui.rank_correct') }}</div>
                 @if(($top3[2]->max_streak ?? 0) >= 3)
                     <div class="podium-streak">🔥 ×{{ $top3[2]->max_streak }}</div>
                 @endif
@@ -179,12 +167,12 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Jugador</th>
-                    <th class="text-right">Puntos</th>
-                    <th class="text-center hide-sm">Aciertos</th>
-                    <th class="text-center hide-sm">Tiempo</th>
-                    <th class="text-center hide-sm">Racha</th>
-                    <th class="text-center">Modo</th>
+                    <th>{{ __('ui.rank_player') }}</th>
+                    <th class="text-right">{{ __('ui.rank_score') }}</th>
+                    <th class="text-center hide-sm">{{ __('ui.rank_correct') }}</th>
+                    <th class="text-center hide-sm">{{ __('ui.stat_time') }}</th>
+                    <th class="text-center hide-sm">{{ __('ui.streak') }}</th>
+                    <th class="text-center">{{ __('ui.ranking_classic') }}</th>
                 </tr>
             </thead>
             <tbody>

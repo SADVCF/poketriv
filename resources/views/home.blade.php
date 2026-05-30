@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'PokéTrivia — ¿Quién es ese Pokémon?')
-@section('description', 'Juega al trivia Pokémon gratis. Adivina el Pokémon por su silueta, responde preguntas de tipos y evoluciones. Sin anuncios, sin registro. ¿Cuántos conoces?')
+@section('title', __('ui.home_title'))
+@section('description', __('ui.home_description'))
 
 @section('content')
 <div class="home-root" x-data="homeForm()">
@@ -43,11 +43,11 @@
         <div class="home-hero">
             <div class="hero-eyebrow">POKE</div>
             <h1 class="hero-title">TRIVIA</h1>
-            <p class="hero-tagline">¿Eres un verdadero<br>Maestro Pokémon?</p>
+            <p class="hero-tagline">{{ __('ui.home_tagline') }}</p>
 
             {{-- Top 3 mini-ranking --}}
             <div class="hero-ranking" x-show="top10.length >= 3">
-                <div class="ranking-label">TOP JUGADORES</div>
+                <div class="ranking-label">{{ __('ui.top_players') }}</div>
                 <template x-for="(s, i) in top10.slice(0,3)" :key="i">
                     <div class="ranking-row" :class="i === 0 ? 'ranking-row--gold' : ''">
                         <span class="ranking-pos" x-text="'#' + (i+1)"></span>
@@ -55,7 +55,7 @@
                         <span class="ranking-score" x-text="s.score.toLocaleString()"></span>
                     </div>
                 </template>
-                <a href="{{ route('ranking') }}" class="ranking-link">Ver ranking completo →</a>
+                <a href="{{ route('ranking') }}" class="ranking-link">{{ __('ui.full_ranking') }}</a>
             </div>
         </div>
 
@@ -68,17 +68,17 @@
                 <div class="league-hero-inner">
                     <div class="league-hero-icon">⚔️</div>
                     <div>
-                        <div class="league-hero-title">LIGA POKÉMON</div>
-                        <div class="league-hero-sub">50 preguntas · 5 etapas · 3 vidas · Comodines</div>
+                        <div class="league-hero-title">{{ __('ui.league_title') }}</div>
+                        <div class="league-hero-sub">{{ __('ui.league_sub') }}</div>
                     </div>
                 </div>
-                <div class="league-hero-cta">ENTRAR EN LA LIGA →</div>
+                <div class="league-hero-cta">{{ __('ui.league_cta') }}</div>
             </div>
 
             {{-- Divider --}}
             <div class="divider">
                 <span class="divider-line"></span>
-                <span class="divider-text">O JUEGA CLÁSICO</span>
+                <span class="divider-text">{{ __('ui.or_classic') }}</span>
                 <span class="divider-line"></span>
             </div>
 
@@ -101,7 +101,7 @@
 
                 <div class="form-field">
                     <div class="form-label-row">
-                        <label class="form-label" style="margin:0">HASTA GEN</label>
+                        <label class="form-label" style="margin:0">{{ __('ui.up_to_gen') }}</label>
                         <span class="gen-info-badge" x-text="genInfo"></span>
                     </div>
                     <div class="gen-row">
@@ -118,7 +118,7 @@
 
                 <div class="form-field">
                     <div class="form-label-row">
-                        <label class="form-label" style="margin:0">PREGUNTAS</label>
+                        <label class="form-label" style="margin:0">{{ __('ui.questions') }}</label>
                         <span class="form-label" style="margin:0;color:var(--yellow)" x-text="questionCount"></span>
                     </div>
                     <div class="qcount-row">
@@ -131,7 +131,7 @@
                     </div>
                 </div>
 
-                <button type="button" @click="startClassic()" class="start-btn">EMPEZAR</button>
+                <button type="button" @click="startClassic()" class="start-btn">{{ __('ui.start') }}</button>
             </div>
 
         </div>
@@ -435,11 +435,11 @@ function homeForm() {
         },
 
         submodes: [
-            { value:'easy',   label:'FÁCIL',   sub:'12s · 4 opc',
+            { value:'easy',   label:'{{ __('ui.easy') }}',   sub:'12s · 4 opt',
               iconHtml:'<svg viewBox="0 0 16 16" width="16" height="16"><path d="M8 1C4.136 1 1 4.136 1 8s3.136 7 7 7 7-3.136 7-7-3.136-7-7-7z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.7"/><path d="M1 8a7 7 0 0 1 14 0" fill="#ee1515"/><path d="M1 8h14" stroke="#1a1a2e" stroke-width="0.7"/><circle cx="8" cy="8" r="2.4" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.7"/><circle cx="8" cy="8" r="1.2" fill="#ccc" stroke="#1a1a2e" stroke-width="0.4"/></svg>' },
-            { value:'medium',  label:'MEDIO',   sub:'8s · 4 opc',
+            { value:'medium',  label:'{{ __('ui.medium') }}',   sub:'8s · 4 opt',
               iconHtml:'<svg viewBox="0 0 16 16" width="16" height="16"><path d="M8 1C4.136 1 1 4.136 1 8s3.136 7 7 7 7-3.136 7-7-3.136-7-7-7z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.7"/><path d="M1 8a7 7 0 0 1 14 0" fill="#1565C0"/><path d="M1 8h14" stroke="#1a1a2e" stroke-width="0.7"/><circle cx="8" cy="8" r="2.4" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.7"/><circle cx="8" cy="8" r="1.2" fill="#ccc" stroke="#1a1a2e" stroke-width="0.4"/></svg>' },
-            { value:'hard',    label:'DIFÍCIL', sub:'6s · 6 opc',
+            { value:'hard',    label:'{{ __('ui.hard') }}', sub:'6s · 6 opt',
               iconHtml:'<svg viewBox="0 0 16 16" width="16" height="16"><path d="M8 1C4.136 1 1 4.136 1 8s3.136 7 7 7 7-3.136 7-7-3.136-7-7-7z" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.7"/><path d="M1 8a7 7 0 0 1 14 0" fill="#222"/><path d="M1 8h14" stroke="#1a1a2e" stroke-width="0.7"/><circle cx="8" cy="8" r="2.4" fill="#f5f5f5" stroke="#1a1a2e" stroke-width="0.7"/><circle cx="8" cy="8" r="1.2" fill="#ccc" stroke="#1a1a2e" stroke-width="0.4"/></svg>' },
         ],
 

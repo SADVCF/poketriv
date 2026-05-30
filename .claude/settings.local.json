@@ -15,7 +15,13 @@
       "Bash(npx serve *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4400/)",
       "Bash(npm list *)",
-      "Bash(node generate-og.mjs)"
+      "Bash(node generate-og.mjs)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://poketriv.test/)",
+      "Bash(curl -s http://poketriv.test/lang/en -I)",
+      "Bash(curl -s http://poketriv.test/)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
