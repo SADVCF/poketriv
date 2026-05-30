@@ -1,2 +1,6 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /api/
+Disallow: /lang/
+
+Sitemap: https://poketriv.com/sitemap.xml
