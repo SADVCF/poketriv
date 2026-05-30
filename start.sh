@@ -17,6 +17,7 @@ echo "==> Seeding Pokémon (desde JSON local)..."
 php artisan db:seed --class=PokemonSeeder --force
 php artisan db:seed --class=PokemonStatsSeeder --force
 php artisan db:seed --class=PokemonDescriptionSeeder --force
+php artisan db:seed --class=PokemonDescriptionEnSeeder --force
 
 echo "==> Servidor listo en puerto ${PORT:-10000}"
 exec php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"
