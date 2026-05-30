@@ -13,6 +13,10 @@ Route::get('/lang/{locale}', function ($locale) {
     return redirect()->back();
 })->name('lang.switch');
 
+Route::get('/sitemap.xml', function () {
+    return response()->view('sitemap')->header('Content-Type', 'application/xml');
+})->name('sitemap');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/game', [GameController::class, 'index'])->name('game');
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');
